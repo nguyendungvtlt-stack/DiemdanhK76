@@ -16,6 +16,9 @@
             --secondary-color: #0d9488; /* Teal-600 */
             --secondary-dark-color: #0f766e; /* Teal-700 */
             --summary-header-bg: #881337; /* Rose-900, for a formal look */
+            --pending-color: #f59e0b; /* Amber-500 */
+            --approved-color: #16a34a; /* Green-600 */
+            --rejected-color: #dc2626; /* Red-600 */
         }
         body { 
             font-family: 'Inter', sans-serif; 
@@ -50,6 +53,10 @@
             background-color: #facc15 !important; /* Yellow-400 */
             color: #1e293b !important; /* Slate-800 for better text contrast */
         }
+        .status-badge { padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; color: white; }
+        .status-pending { background-color: var(--pending-color); }
+        .status-approved { background-color: var(--approved-color); }
+        .status-rejected { background-color: var(--rejected-color); }
         /* --- STICKY TABLE HEADERS & COLUMNS --- */
         .table-container thead th {
             position: sticky;
@@ -190,7 +197,7 @@
                         <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh (Chỉ xem)</h3>
                         <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử..." class="form-input w-full sm:w-64">
                     </div>
-                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>Họ và tên</th><th>Lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Lý do</th></tr></thead><tbody id="absenceLog" class="bg-white"></tbody></table></div></div>
+                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>Họ và tên</th><th>Lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th></tr></thead><tbody id="absenceLog" class="bg-white"></tbody></table></div></div>
                 </section>
 
                 <section class="content-card">
@@ -327,7 +334,8 @@
             });
             
             function updateSummaryTable(data, classesWithAbsencesToday) {
-                const counts = data.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
+                const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
+                const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
                 document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
             
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
@@ -344,11 +352,21 @@
 
             function renderAbsenceLog(dataToRender) {
                 absenceLog.innerHTML = '';
-                if (dataToRender.length === 0) { const tr = absenceLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 6; td.textContent = "Chưa có dữ liệu điểm danh."; td.className = 'text-gray-500 py-4 text-center'; } else {
+                if (dataToRender.length === 0) { const tr = absenceLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 7; td.textContent = "Chưa có dữ liệu điểm danh."; td.className = 'text-gray-500 py-4 text-center'; } else {
                     dataToRender.forEach((entry) => {
                         const tr = absenceLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
-                        tr.innerHTML = `<td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td class="important-column">${entry.subject}</td><td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td><td>${entry.session}</td><td class="font-semibold ${entry.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'}">${entry.permission}</td>`;
+
+                        let statusHtml = '';
+                        if (entry.status === 'pending') {
+                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                        } else if (entry.status === 'approved') {
+                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                        } else if (entry.status === 'rejected') {
+                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                        }
+
+                        tr.innerHTML = `<td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td class="important-column">${entry.subject}</td><td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td><td>${entry.session}</td><td class="font-semibold ${entry.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'}">${entry.permission}</td><td>${statusHtml}</td>`;
                     });
                 }
             }
@@ -392,8 +410,39 @@
                 });
             }
             
-            async function addAbsence(entry) { try { await addDoc(absenceCollection, entry); showNotification('Đã thêm điểm danh thành công!'); } catch (e) { console.error("Error adding absence: ", e); showNotification('Có lỗi xảy ra khi điểm danh.', true); } }
-            absenceForm.addEventListener('submit', function(e) { e.preventDefault(); addAbsence({ name: document.getElementById('studentName').value, studentClass: document.getElementById('studentClass').value, subject: document.getElementById('subject').value, date: document.getElementById('absenceDate').value, session: document.getElementById('session').value, permission: document.getElementById('permission').value, timestamp: serverTimestamp() }); this.reset(); document.getElementById('absenceDate').valueAsDate = new Date(); });
+            async function addAbsence(entry) { 
+                try { 
+                    await addDoc(absenceCollection, entry); 
+                    showNotification('Đã thêm điểm danh thành công! Trạng thái đang chờ duyệt.'); 
+                } catch (e) { 
+                    console.error("Error adding absence: ", e); 
+                    showNotification('Có lỗi xảy ra khi điểm danh.', true); 
+                } 
+            }
+
+            absenceForm.addEventListener('submit', function(e) { 
+                e.preventDefault(); 
+                const permissionValue = document.getElementById('permission').value;
+                const absenceData = { 
+                    name: document.getElementById('studentName').value, 
+                    studentClass: document.getElementById('studentClass').value, 
+                    subject: document.getElementById('subject').value, 
+                    date: document.getElementById('absenceDate').value, 
+                    session: document.getElementById('session').value, 
+                    permission: permissionValue, 
+                    timestamp: serverTimestamp() 
+                };
+
+                if (permissionValue === 'Có phép') {
+                    absenceData.status = 'pending';
+                } else {
+                    absenceData.status = 'n/a';
+                }
+
+                addAbsence(absenceData);
+                this.reset();
+                document.getElementById('absenceDate').valueAsDate = new Date(); 
+            });
 
             registrationForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -510,7 +559,13 @@
                                     <ul class="list-disc pl-5 mt-1 text-gray-700 font-normal">${thoiGianHocHTML}</ul>
                                 </div>`; 
                         }
-                        modalContent += `<li class="p-3 rounded-md bg-gray-100 border border-gray-200"><strong class="text-gray-800">${student.name}</strong> - Ngày: ${new Date(student.date).toLocaleDateString('vi-VN')} (${student.session}) - <span class="${student.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'} font-semibold">${student.permission}</span>${registrationInfo}</li>`;
+                        
+                        let statusText = '';
+                        if (student.status === 'pending') statusText = ` <span class="status-badge status-pending">Chờ duyệt</span>`;
+                        else if (student.status === 'approved') statusText = ` <span class="status-badge status-approved">Đã duyệt</span>`;
+                        else if (student.status === 'rejected') statusText = ` <span class="status-badge status-rejected">Đã từ chối</span>`;
+
+                        modalContent += `<li class="p-3 rounded-md bg-gray-100 border border-gray-200"><strong class="text-gray-800">${student.name}</strong> - Ngày: ${new Date(student.date).toLocaleDateString('vi-VN')} (${student.session}) - <span class="${student.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'} font-semibold">${student.permission}</span>${statusText}${registrationInfo}</li>`;
                     });
                     modalContent += '</ul>';
                 }
@@ -532,4 +587,3 @@
     </script>
 </body>
 </html>
-
