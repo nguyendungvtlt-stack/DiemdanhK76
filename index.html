@@ -93,9 +93,9 @@
         </div>
     </div>
 
-    <div class="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+    <div class="max-w-screen-2xl mx-auto">
         <!-- Main Content Column -->
-        <div class="lg:col-span-4 space-y-8">
+        <div class="space-y-8">
             <!-- Header -->
             <header class="content-card p-4 md:p-6">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -130,59 +130,56 @@
                      </div>
                 </section>
                 
-                <!-- Grid for Approval and History Tables -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Duyệt đơn xin phép -->
-                    <section class="content-card">
-                        <div class="card-header"><h3 class="text-xl font-bold text-amber-600">Duyệt đơn xin nghỉ phép</h3></div>
-                        <div class="p-4">
-                            <div class="table-container">
-                                <table class="w-full">
-                                    <thead style="background-color: var(--pending-color);">
-                                        <tr>
-                                            <th>Họ và tên</th>
-                                            <th>Lớp</th>
-                                            <th>Môn học</th>
-                                            <th>Ngày vắng</th>
-                                            <th>Buổi</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="pendingAbsenceTableBody" class="bg-white">
-                                        <!-- Pending requests will be populated here -->
-                                    </tbody>
-                                </table>
-                            </div>
+                <!-- Duyệt đơn xin phép -->
+                <section class="content-card">
+                    <div class="card-header"><h3 class="text-xl font-bold text-amber-600">Duyệt đơn xin nghỉ phép</h3></div>
+                    <div class="p-4">
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead style="background-color: var(--pending-color);">
+                                    <tr>
+                                        <th>Họ và tên</th>
+                                        <th>Lớp</th>
+                                        <th>Môn học</th>
+                                        <th>Ngày vắng</th>
+                                        <th>Buổi</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingAbsenceTableBody" class="bg-white">
+                                    <!-- Pending requests will be populated here -->
+                                </tbody>
+                            </table>
                         </div>
-                    </section>
-                    
-                    <!-- Bảng Lịch sử điểm danh -->
-                    <section class="content-card">
-                        <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh</h3>
-                            <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử điểm danh..." class="form-input w-full sm:w-64">
+                    </div>
+                </section>
+                
+                <!-- Bảng Lịch sử điểm danh -->
+                <section class="content-card">
+                    <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh</h3>
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử điểm danh..." class="form-input w-full sm:w-64">
+                    </div>
+                    <div class="p-4">
+                        <div class="table-container">
+                            <table class="w-full">
+                                <thead style="background-color: var(--summary-header-bg);">
+                                    <tr>
+                                        <th>Họ và tên</th>
+                                        <th>Tên lớp</th>
+                                        <th>Môn học</th>
+                                        <th>Ngày vắng</th>
+                                        <th>Buổi</th>
+                                        <th>Lý do</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="absenceLog" class="bg-white"></tbody>
+                            </table>
                         </div>
-                        <div class="p-4">
-                            <div class="table-container">
-                                <table class="w-full">
-                                    <thead style="background-color: var(--summary-header-bg);">
-                                        <tr>
-                                            <th>Họ và tên</th>
-                                            <th>Tên lớp</th>
-                                            <th>Môn học</th>
-                                            <th>Ngày vắng</th>
-                                            <th>Buổi</th>
-                                            <th>Lý do</th>
-                                            <th>Trạng thái</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="absenceLog" class="bg-white"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+                    </div>
+                </section>
 
                 <!-- Quản lý & Tra Cứu Lịch Thi -->
                 <section class="content-card">
@@ -289,14 +286,6 @@
                 <p>Phát triển bởi: Dungcdr - Email: nguyendungvtlt@gmail.com</p>
             </footer>
         </div>
-
-        <!-- Right Sidebar Column -->
-        <aside class="hidden lg:block lg:col-span-1">
-            <div class="sticky top-56 space-y-4">
-                <img src="Bac hut thuoc.jpg" alt="Bác Hồ hút thuốc" class="rounded-lg shadow-lg w-full h-auto">
-                <img src="Ba Vĩ Nhân làm nên lịch sử đất Việt.jfif" alt="Ba Vĩ Nhân làm nên lịch sử đất Việt" class="rounded-lg shadow-lg w-full h-auto">
-            </div>
-        </aside>
     </div>
 
     <!-- Modals -->
