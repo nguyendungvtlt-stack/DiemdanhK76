@@ -247,7 +247,10 @@
                                 <div><label for="regStudentClass" class="block text-sm font-medium text-gray-700 mb-1">Lớp</label><select id="regStudentClass" class="form-select" required></select></div>
                                 <div class="sm:col-span-2"><label for="regChuNhiem" class="block text-sm font-medium text-gray-700 mb-1">Chủ nhiệm lớp</label><input type="text" id="regChuNhiem" class="form-input" placeholder="Trần Thị B" required></div>
                                 <div><label for="regSubject" class="block text-sm font-medium text-gray-700 mb-1">Môn học cần bổ sung</label><select id="regSubject" class="form-select" required></select></div>
-                                <div class="multiselect-dropdown"><label class="block text-sm font-medium text-gray-700 mb-1">Chọn chuyên đề</label><button type="button" id="regChuyenDeBtn" class="form-input text-left w-full">Chọn chuyên đề...</button><div id="regChuyenDeDropdown" class="multiselect-dropdown-content"></div></div>
+                                <div>
+                                    <label for="regChuyenDe" class="block text-sm font-medium text-gray-700 mb-1">Tên chuyên đề</label>
+                                    <input type="text" id="regChuyenDe" class="form-input" placeholder="Nhập tên chuyên đề" required>
+                                </div>
                                 
                                 <div class="sm:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Thời gian học (Tối đa 4 buổi)</label>
@@ -306,9 +309,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const subjects = ["Tuần lễ học viên", "TRIET", "KTCT", "CNXH", "TTHCM", "LSĐ", "QLKT", "NNPL", "KTPT", "QHQT", "VHPT", "GDQP", "TGTN", "LLDT", "GIOI", "QCN", "KHLĐ", "XHH", "CTH", "XDĐ", "NgK"];
             const classes = Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`);
-            const tempChuyenDe = Array.from({ length: 19 }, (_, i) => `CĐ${i + 1}`);
-            const chuyenDeOptions = [...tempChuyenDe, "Chuyên đề thảo luận"];
-
+            
             let localAbsenceData = [], localRegistrationData = [], localExamData = [];
             
             const summaryTableBody = document.getElementById('summaryTable').querySelector('tbody');
@@ -321,7 +322,6 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             const registrationForm = document.getElementById('registrationForm'), registrationLog = document.getElementById('registrationLog');
             const regStudentClassSelect = document.getElementById('regStudentClass'), regSubjectSelect = document.getElementById('regSubject');
-            const regChuyenDeBtn = document.getElementById('regChuyenDeBtn'), regChuyenDeDropdown = document.getElementById('regChuyenDeDropdown');
             const regHocCungLopSelect = document.getElementById('regHocCungLop');
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
@@ -375,13 +375,6 @@
                     regSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
                 });
 
-                chuyenDeOptions.forEach(cd => {
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-md';
-                    label.innerHTML = `<input type="checkbox" class="form-checkbox rounded text-teal-600 focus:ring-teal-600" value="${cd}"><span>${cd}</span>`;
-                    regChuyenDeDropdown.appendChild(label);
-                });
-
                 document.getElementById('absenceDate').valueAsDate = new Date();
                 addSessionInput(); 
             }
@@ -396,7 +389,7 @@
                 const classesWithAbsencesToday = new Set(localAbsenceData.filter(entry => entry.date === todayString).map(entry => entry.studentClass));
                 
                 renderLog(localAbsenceData);
-                renderPendingAbsences(localAbsenceData); // New function call
+                renderPendingAbsences(localAbsenceData); 
                 updateSummaryTable(localAbsenceData, classesWithAbsencesToday);
                 
                 loadedFlags.absence = true;
@@ -407,13 +400,12 @@
 
             onSnapshot(query(examScheduleCollection), (snapshot) => {
                 localExamData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                applyExamFilters(); // Render with current filters
+                applyExamFilters(); 
                 loadedFlags.exam = true;
                 hideLoading();
             });
 
             function updateSummaryTable(data, classesWithAbsencesToday) {
-                // Filter data to only count 'approved' or 'n/a' (for 'Không phép') absences
                 const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
                 const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
                 document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
@@ -490,8 +482,8 @@
                             }).join('<br>');
                         }
 
-                        const chuyenDeList = Array.isArray(entry.chuyenDe) ? entry.chuyenDe.join(', ') : (entry.chuyenDe || 'N/A');
-                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeList}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                        const chuyenDeText = entry.chuyenDe || 'N/A';
+                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>`;
                     });
                 }
             }
@@ -563,8 +555,11 @@
             
             registrationForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const selectedChuyenDe = Array.from(regChuyenDeDropdown.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-                if (selectedChuyenDe.length === 0) { showNotification('Vui lòng chọn ít nhất một chuyên đề.', true); return; }
+                const chuyenDeValue = document.getElementById('regChuyenDe').value.trim();
+                if (!chuyenDeValue) { 
+                    showNotification('Vui lòng nhập tên chuyên đề.', true); 
+                    return; 
+                }
                 
                 const thoiGianHoc = [];
                 const sessionEntries = thoiGianHocContainer.querySelectorAll('.session-entry');
@@ -575,13 +570,11 @@
                 });
                 if (thoiGianHoc.length === 0) { showNotification('Vui lòng chọn ít nhất một buổi học.', true); return; }
 
-                const formData = { name: document.getElementById('regStudentName').value, studentClass: document.getElementById('regStudentClass').value, chuNhiem: document.getElementById('regChuNhiem').value, subject: document.getElementById('regSubject').value, chuyenDe: selectedChuyenDe, thoiGianHoc, hocCungLop: document.getElementById('regHocCungLop').value, timestamp: serverTimestamp() };
+                const formData = { name: document.getElementById('regStudentName').value, studentClass: document.getElementById('regStudentClass').value, chuNhiem: document.getElementById('regChuNhiem').value, subject: document.getElementById('regSubject').value, chuyenDe: chuyenDeValue, thoiGianHoc, hocCungLop: document.getElementById('regHocCungLop').value, timestamp: serverTimestamp() };
                 addRegistration(formData); 
                 this.reset(); 
                 thoiGianHocContainer.innerHTML = '';
                 addSessionInput();
-                regChuyenDeBtn.textContent = 'Chọn chuyên đề...'; 
-                regChuyenDeDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
             });
 
             // Exam File Import Logic
@@ -602,7 +595,6 @@
                         const worksheet = workbook.Sheets[firstSheetName];
                         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                         
-                        // Validate headers
                         const headers = json[0];
                         if (headers[0] !== 'Lop' || headers[1] !== 'MonHoc' || headers[2] !== 'NgayThi' || headers[3] !== 'Buoi') {
                              throw new Error('Tiêu đề cột không hợp lệ. Phải là Lop, MonHoc, NgayThi, Buoi.');
@@ -633,7 +625,7 @@
 
                                 if (!examDate || isNaN(examDate.getTime())) {
                                     console.warn(`Skipping invalid date '${rawDateValue}' for class ${record.Lop}.`);
-                                    return; // Skip this record
+                                    return; 
                                 }
                                 
                                 const formattedDate = examDate.toISOString().split('T')[0];
@@ -654,7 +646,7 @@
 
                         await batch.commit();
                         showNotification(`Đã nhập thành công ${jsonData.length} mục lịch thi.`);
-                        examFileUpload.value = ''; // Reset file input
+                        examFileUpload.value = '';
 
                     } catch (error) {
                         console.error("Error processing Excel file: ", error);
@@ -743,7 +735,7 @@
             registrationSearchInput.addEventListener('input', () => {
                 const searchTerm = registrationSearchInput.value.toLowerCase().trim();
                 const filteredData = localRegistrationData.filter(entry => {
-                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, ...entry.chuyenDe];
+                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, entry.chuyenDe];
                     entry.thoiGianHoc.forEach(t => values.push(t.ngay, t.buoi));
                     return values.some(val => String(val).toLowerCase().includes(searchTerm));
                 });
@@ -794,10 +786,7 @@
             detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModalUI(detailsModal); });
             confirmCancel.addEventListener('click', () => closeModalUI(confirmModal));
             confirmOk.addEventListener('click', () => { closeModalUI(confirmModal); if (confirmCallback) confirmCallback(); });
-            regChuyenDeBtn.addEventListener('click', () => { regChuyenDeDropdown.style.display = regChuyenDeDropdown.style.display === 'block' ? 'none' : 'block'; });
-            regChuyenDeDropdown.addEventListener('change', () => { const selected = Array.from(regChuyenDeDropdown.querySelectorAll('input:checked')).map(cb => cb.value); regChuyenDeBtn.textContent = selected.length > 0 ? selected.join(', ') : 'Chọn chuyên đề...'; });
-            document.addEventListener('click', (e) => { if (!regChuyenDeBtn.contains(e.target) && !regChuyenDeDropdown.contains(e.target)) { regChuyenDeDropdown.style.display = 'none'; } });
-
+            
             initializeUI();
         });
     </script>
