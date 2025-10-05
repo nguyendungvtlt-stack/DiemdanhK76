@@ -41,8 +41,6 @@
         .btn-secondary { background-color: var(--secondary-color); color: #fff; }
         .btn-secondary:hover { background-color: var(--secondary-dark-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         #loadingOverlay { transition: opacity 0.3s; }
-        .multiselect-dropdown { position: relative; display: inline-block; width: 100%; }
-        .multiselect-dropdown-content { display: none; position: absolute; background-color: #fff; width: 100%; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); padding: 0.5rem; z-index: 10; max-height: 200px; overflow-y: auto; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
         .clickable-cell { cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
         .clickable-cell:hover { background-color: #f1f5f9; }
         .important-column { color: #111827; font-weight: 500; }
@@ -184,7 +182,10 @@
                                 <div><label for="regStudentClass" class="block text-sm font-medium text-gray-700 mb-1">Lớp của bạn</label><select id="regStudentClass" class="form-select" required></select></div>
                                 <div class="sm:col-span-2"><label for="regChuNhiem" class="block text-sm font-medium text-gray-700 mb-1">Chủ nhiệm lớp</label><input type="text" id="regChuNhiem" class="form-input" placeholder="Trần Thị B" required></div>
                                 <div><label for="regSubject" class="block text-sm font-medium text-gray-700 mb-1">Môn học cần bổ sung</label><select id="regSubject" class="form-select" required></select></div>
-                                <div class="multiselect-dropdown"><label class="block text-sm font-medium text-gray-700 mb-1">Chọn chuyên đề</label><button type="button" id="regChuyenDeBtn" class="form-input text-left w-full">Chọn chuyên đề...</button><div id="regChuyenDeDropdown" class="multiselect-dropdown-content"></div></div>
+                                <div>
+                                    <label for="regChuyenDe" class="block text-sm font-medium text-gray-700 mb-1">Tên chuyên đề</label>
+                                    <input type="text" id="regChuyenDe" class="form-input" placeholder="Nhập tên chuyên đề" required>
+                                </div>
                                 
                                 <div class="sm:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Thời gian học (Tối đa 4 buổi)</label>
@@ -231,8 +232,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const subjects = ["Tuần lễ học viên", "TRIET", "KTCT", "CNXH", "TTHCM", "LSĐ", "QLKT", "NNPL", "KTPT", "QHQT", "VHPT", "GDQP", "TGTN", "LLDT", "GIOI", "QCN", "KHLĐ", "XHH", "CTH", "XDĐ", "NgK"];
             const classes = Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`);
-            const tempChuyenDe = Array.from({ length: 19 }, (_, i) => `CĐ${i + 1}`);
-            const chuyenDeOptions = [...tempChuyenDe, "Chuyên đề thảo luận"];
             let localAbsenceData = [], localRegistrationData = [], localExamData = [];
             
             const summaryTableBody = document.getElementById('summaryTable').querySelector('tbody');
@@ -242,7 +241,6 @@
 
             const registrationForm = document.getElementById('registrationForm'), registrationLog = document.getElementById('registrationLog');
             const regStudentClassSelect = document.getElementById('regStudentClass'), regSubjectSelect = document.getElementById('regSubject');
-            const regChuyenDeBtn = document.getElementById('regChuyenDeBtn'), regChuyenDeDropdown = document.getElementById('regChuyenDeDropdown');
             const regHocCungLopSelect = document.getElementById('regHocCungLop');
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
@@ -292,15 +290,8 @@
                     regSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
                 });
 
-                chuyenDeOptions.forEach(cd => {
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center space-x-2 p-1 hover:bg-gray-100 rounded-md';
-                    label.innerHTML = `<input type="checkbox" class="form-checkbox rounded text-teal-600 focus:ring-teal-600" value="${cd}"><span>${cd}</span>`;
-                    regChuyenDeDropdown.appendChild(label);
-                });
-
                 document.getElementById('absenceDate').valueAsDate = new Date();
-                addSessionInput(); // Add the first session on load
+                addSessionInput(); 
             }
             
             let loadedFlags = { absence: false, registration: false, exam: false };
@@ -379,8 +370,8 @@
                             }).join('<br>');
                         }
                         
-                        const chuyenDeList = Array.isArray(entry.chuyenDe) ? entry.chuyenDe.join(', ') : (entry.chuyenDe || 'N/A');
-                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeList}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td>`;
+                        const chuyenDeText = entry.chuyenDe || 'N/A';
+                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td>`;
                     });
                 }
             }
@@ -439,8 +430,11 @@
 
             registrationForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const selectedChuyenDe = Array.from(regChuyenDeDropdown.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-                if (selectedChuyenDe.length === 0) { showNotification('Vui lòng chọn ít nhất một chuyên đề.', true); return; }
+                const chuyenDeValue = document.getElementById('regChuyenDe').value.trim();
+                if (!chuyenDeValue) {
+                    showNotification('Vui lòng nhập tên chuyên đề.', true);
+                    return;
+                }
                 
                 const thoiGianHoc = [];
                 const sessionEntries = thoiGianHocContainer.querySelectorAll('.session-entry');
@@ -456,7 +450,7 @@
                     studentClass: document.getElementById('regStudentClass').value, 
                     chuNhiem: document.getElementById('regChuNhiem').value, 
                     subject: document.getElementById('regSubject').value, 
-                    chuyenDe: selectedChuyenDe, 
+                    chuyenDe: chuyenDeValue, 
                     thoiGianHoc, 
                     hocCungLop: document.getElementById('regHocCungLop').value, 
                     timestamp: serverTimestamp() 
@@ -467,8 +461,6 @@
                     this.reset(); 
                     thoiGianHocContainer.innerHTML = '';
                     addSessionInput();
-                    regChuyenDeBtn.textContent = 'Chọn chuyên đề...'; 
-                    regChuyenDeDropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false); 
                 } catch (err) { 
                     console.error("Error adding registration: ", err); 
                     showNotification('Có lỗi xảy ra, không thể đăng ký.', true); 
@@ -571,10 +563,6 @@
             closeModal.addEventListener('click', () => closeModalUI(detailsModal));
             detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModalUI(detailsModal); });
             
-            regChuyenDeBtn.addEventListener('click', () => { regChuyenDeDropdown.style.display = regChuyenDeDropdown.style.display === 'block' ? 'none' : 'block'; });
-            regChuyenDeDropdown.addEventListener('change', () => { const selected = Array.from(regChuyenDeDropdown.querySelectorAll('input:checked')).map(cb => cb.value); regChuyenDeBtn.textContent = selected.length > 0 ? selected.join(', ') : 'Chọn chuyên đề...'; });
-            document.addEventListener('click', (e) => { if (!regChuyenDeBtn.contains(e.target) && !regChuyenDeDropdown.contains(e.target)) { regChuyenDeDropdown.style.display = 'none'; } });
-
             initializeUI();
         });
     </script>
