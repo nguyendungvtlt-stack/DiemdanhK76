@@ -30,7 +30,7 @@
             background-attachment: fixed;
         }
         .content-card { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); border: 1px solid #e2e8f0; }
-        .table-container { max-width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0.5rem; max-height: 40vh; overflow-y: auto; }
+        .table-container { max-width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0.5rem; max-height: 50vh; overflow-y: auto; }
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #e2e8f0; padding: 0.75rem 0.5rem; text-align: center; font-size: 0.875rem; white-space: nowrap; }
         th { background-color: var(--primary-color); color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -44,6 +44,7 @@
         .form-select, .form-input { border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0.6rem 0.8rem; width: 100%; background-color: #f8fafc; transition: all 0.2s ease; }
         .form-input:focus, .form-select:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.4); }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.5rem; padding: 0.625rem 1.25rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-primary { background-color: var(--primary-color); color: #fff; }
         .btn-primary:hover { background-color: var(--primary-dark-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
         .btn-secondary { background-color: var(--secondary-color); color: #fff; }
@@ -81,6 +82,14 @@
         .status-pending { background-color: var(--pending-color); }
         .status-approved { background-color: var(--approved-color); }
         .status-rejected { background-color: var(--rejected-color); }
+        .k75-header { background-color: #475569 !important; } /* Slate-600 */
+        .k75-cell { background-color: #f1f5f9; } /* Slate-100 */
+        .clickable-cell.k75-cell:hover { background-color: #e2e8f0; } /* Slate-200 */
+
+        .btn-approve { background-color: var(--approved-color); color: white; }
+        .btn-approve:hover { background-color: #15803d; } /* Green-700 */
+        .btn-reject { background-color: var(--pending-color); color: white; }
+        .btn-reject:hover { background-color: #d97706; } /* Amber-600 */
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8">
@@ -130,56 +139,40 @@
                      </div>
                 </section>
                 
-                <!-- Duyệt đơn xin phép -->
-                <section class="content-card">
-                    <div class="card-header"><h3 class="text-xl font-bold text-amber-600">Duyệt đơn xin nghỉ phép</h3></div>
-                    <div class="p-4">
-                        <div class="table-container">
-                            <table class="w-full">
-                                <thead style="background-color: var(--pending-color);">
-                                    <tr>
-                                        <th>Họ và tên</th>
-                                        <th>Lớp</th>
-                                        <th>Môn học</th>
-                                        <th>Ngày vắng</th>
-                                        <th>Buổi</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pendingAbsenceTableBody" class="bg-white">
-                                    <!-- Pending requests will be populated here -->
-                                </tbody>
-                            </table>
+                <!-- Duyệt đơn & Lịch sử -->
+                <div class="space-y-8">
+                     <!-- Duyệt đơn xin nghỉ phép -->
+                    <section class="content-card">
+                        <div class="card-header">
+                            <h3 class="text-xl font-bold text-orange-600">Duyệt đơn xin nghỉ phép</h3>
                         </div>
-                    </div>
-                </section>
-                
-                <!-- Bảng Lịch sử điểm danh -->
-                <section class="content-card">
-                    <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh</h3>
-                        <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử điểm danh..." class="form-input w-full sm:w-64">
-                    </div>
-                    <div class="p-4">
-                        <div class="table-container">
-                            <table class="w-full">
-                                <thead style="background-color: var(--summary-header-bg);">
-                                    <tr>
-                                        <th>Họ và tên</th>
-                                        <th>Tên lớp</th>
-                                        <th>Môn học</th>
-                                        <th>Ngày vắng</th>
-                                        <th>Buổi</th>
-                                        <th>Lý do</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="absenceLog" class="bg-white"></tbody>
-                            </table>
+                        <div class="p-4">
+                            <div class="table-container">
+                                <table class="w-full">
+                                    <thead style="background-color: var(--pending-color);"><tr><th>Họ và tên</th><th>Lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="pendingAbsenceLog" class="bg-white"></tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+
+                    <!-- Lịch sử điểm danh -->
+                    <section class="content-card">
+                        <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh</h3>
+                            <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử điểm danh..." class="form-input w-full sm:w-64">
+                        </div>
+                        <div class="p-4">
+                            <div class="table-container">
+                                <table class="w-full">
+                                    <thead style="background-color: var(--summary-header-bg);"><tr><th>Họ và tên</th><th>Tên lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="absenceLog" class="bg-white"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
 
                 <!-- Quản lý & Tra Cứu Lịch Thi -->
                 <section class="content-card">
@@ -266,38 +259,55 @@
                         </form>
                     </section>
                 </div>
-
+                
                 <!-- Bảng Danh sách đăng ký -->
                 <section class="content-card">
                     <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký học bổ sung</h3>
-                        <div class="flex items-center gap-2">
-                             <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm lịch sử đăng ký..." class="form-input w-full sm:w-64">
-                             <button id="exportRegistrationsBtn" class="btn btn-secondary whitespace-nowrap"><i class="fa-solid fa-file-excel mr-2"></i>Xuất Excel</button>
+                        <div class="flex items-center gap-4">
+                            <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm lịch sử đăng ký..." class="form-input w-full sm:w-64">
+                            <button id="exportExcelBtn" class="btn bg-green-600 hover:bg-green-700 text-white flex-shrink-0"><i class="fa-solid fa-file-excel mr-2"></i>Xuất Excel</button>
                         </div>
                     </div>
                     <div class="p-4">
                          <div class="table-container">
                             <table class="w-full">
-                                <thead style="background-color: var(--summary-header-bg);">
-                                    <tr>
-                                        <th>STT</th>
-                                        <th>Họ tên HV</th>
-                                        <th>Tên lớp</th>
-                                        <th>Chủ nhiệm</th>
-                                        <th>Môn học</th>
-                                        <th>Chuyên đề</th>
-                                        <th>Thời gian học</th>
-                                        <th>Học cùng lớp</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
+                                <thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Tên lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
                                 <tbody id="registrationLog" class="bg-white"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
+
+                <!-- Quản lý Bảo lưu Kết quả học tập -->
+                <section class="content-card">
+                    <div class="card-header"><h3 class="text-xl font-bold text-blue-800">Quản lý Bảo lưu Kết quả học tập</h3></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+                        <!-- Form Bảo lưu -->
+                        <div class="lg:col-span-1">
+                             <form id="leaveForm" class="space-y-4">
+                                <h4 class="text-lg font-semibold text-gray-800">Thêm học viên bảo lưu</h4>
+                                <div><label for="leaveStudentName" class="block text-sm font-medium text-gray-700 mb-1">Họ và tên</label><input type="text" id="leaveStudentName" class="form-input" required></div>
+                                <div><label for="leaveStudentClass" class="block text-sm font-medium text-gray-700 mb-1">Lớp</label><select id="leaveStudentClass" class="form-select" required></select></div>
+                                <div><label for="leaveStartDate" class="block text-sm font-medium text-gray-700 mb-1">Bảo lưu bắt đầu từ ngày</label><input type="date" id="leaveStartDate" class="form-input" required></div>
+                                <div><label for="leaveReason" class="block text-sm font-medium text-gray-700 mb-1">Lý do</label><textarea id="leaveReason" class="form-input" rows="3" placeholder="Quyết định số..."></textarea></div>
+                                <div><label for="leaveFile" class="block text-sm font-medium text-gray-700 mb-1">File Quyết định (PDF, PNG, JPG)</label><input type="file" id="leaveFile" class="form-input" accept=".pdf,.png,.jpg,.jpeg"></div>
+                                 <p class="text-xs text-gray-500"><i class="fa-solid fa-info-circle mr-1"></i>Thời hạn bảo lưu tối đa là 3 năm.</p>
+                                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white w-full"><i class="fa-solid fa-save mr-2"></i>Lưu thông tin</button>
+                            </form>
+                        </div>
+                        <!-- Bảng DS Bảo lưu -->
+                        <div class="lg:col-span-2">
+                             <div class="table-container">
+                                <table class="w-full">
+                                    <thead class="bg-blue-800"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Bảo lưu từ ngày</th><th>Lý do</th><th>File QĐ</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="leaveLog" class="bg-white"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
             <footer class="text-center text-sm text-gray-500 py-4 bg-white/70 backdrop-blur-sm rounded-lg">
@@ -315,18 +325,24 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp, setDoc, writeBatch, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
         const firebaseConfig = { apiKey: "AIzaSyAdwypOgoxMcrA2JxsfKD2vUqbnLfUuqzA", authDomain: "diem-danh-hoc-vien.firebaseapp.com", projectId: "diem-danh-hoc-vien", storageBucket: "diem-danh-hoc-vien.firebasestorage.app", messagingSenderId: "186541306115", appId: "1:186541306115:web:89424d662913ec9f9a3936", measurementId: "G-2T5MQRG9JQ" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         const absenceCollection = collection(db, 'diem-danh');
         const registrationCollection = collection(db, 'dang-ky-hoc-bo-sung');
         const examScheduleCollection = collection(db, 'lich-thi');
+        const leaveCollection = collection(db, 'bao-luu-hoc-tap');
 
         document.addEventListener('DOMContentLoaded', function () {
             const subjects = ["Tuần lễ học viên", "TRIET", "KTCT", "CNXH", "TTHCM", "LSĐ", "QLKT", "NNPL", "KTPT", "QHQT", "VHPT", "GDQP", "TGTN", "LLDT", "GIOI", "QCN", "KHLĐ", "XHH", "CTH", "XDĐ", "NgK"];
-            const classes = Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`);
+            const classes = [
+                ...Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`),
+                'K75.B06', 'K75.B07', 'K75.B08', 'K75.B09', 'K75.B10'
+            ];
             
-            let localAbsenceData = [], localRegistrationData = [], localExamData = [];
+            let localAbsenceData = [], localRegistrationData = [], localExamData = [], localLeaveData = [];
             
             const summaryTableBody = document.getElementById('summaryTable').querySelector('tbody');
             const studentClassSelect = document.getElementById('studentClass'), subjectSelect = document.getElementById('subject');
@@ -342,7 +358,13 @@
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
             const registrationSearchInput = document.getElementById('registrationSearchInput');
-            const exportRegistrationsBtn = document.getElementById('exportRegistrationsBtn');
+            const pendingAbsenceLog = document.getElementById('pendingAbsenceLog');
+            const exportExcelBtn = document.getElementById('exportExcelBtn');
+
+            // Leave of Absence Elements
+            const leaveForm = document.getElementById('leaveForm');
+            const leaveLog = document.getElementById('leaveLog');
+            const leaveStudentClassSelect = document.getElementById('leaveStudentClass');
 
             // Exam Schedule Elements
             const importExamBtn = document.getElementById('importExamBtn');
@@ -351,27 +373,39 @@
             const filterClassSelect = document.getElementById('filterClass');
             const filterSubjectSelect = document.getElementById('filterSubject');
 
-            // Pending Absence Elements
-            const pendingAbsenceTableBody = document.getElementById('pendingAbsenceTableBody');
-
             let notificationTimeout, confirmCallback = null;
 
             function initializeUI() {
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
-                classes.forEach(cls => headerRow.appendChild(Object.assign(document.createElement('th'), { textContent: cls })));
+                classes.forEach(cls => {
+                    const th = Object.assign(document.createElement('th'), { textContent: cls });
+                    if (cls.startsWith('K75')) {
+                        th.classList.add('k75-header');
+                    }
+                    headerRow.appendChild(th);
+                });
                 
                 subjects.forEach((sub, index) => {
                     const tr = summaryTableBody.appendChild(document.createElement('tr'));
                     tr.appendChild(Object.assign(document.createElement('td'), { textContent: index + 1, className: 'important-column' }));
                     const subjectCell = Object.assign(document.createElement('td'), { textContent: sub, className: 'important-column' });
                     tr.appendChild(subjectCell);
-                    classes.forEach(cls => { const td = Object.assign(document.createElement('td'), { id: `cell-${sub}-${cls}`, textContent: '0' }); td.dataset.subject = sub; td.dataset.class = cls; tr.appendChild(td); });
+                    classes.forEach(cls => { 
+                        const td = Object.assign(document.createElement('td'), { id: `cell-${sub}-${cls}`, textContent: '0' }); 
+                        td.dataset.subject = sub; 
+                        td.dataset.class = cls; 
+                        if (cls.startsWith('K75')) {
+                            td.classList.add('k75-cell');
+                        }
+                        tr.appendChild(td); 
+                    });
                 });
 
                 classes.forEach(cls => {
                     studentClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
                     regStudentClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
                     regHocCungLopSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
+                    leaveStudentClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
                 });
                 
                 filterClassSelect.appendChild(Object.assign(document.createElement('option'), { value: 'all', textContent: 'Tất cả các lớp' }));
@@ -393,10 +427,11 @@
                 });
 
                 document.getElementById('absenceDate').valueAsDate = new Date();
+                document.getElementById('leaveStartDate').valueAsDate = new Date();
                 addSessionInput(); 
             }
 
-            let loadedFlags = { absence: false, registration: false, exam: false };
+            let loadedFlags = { absence: false, registration: false, exam: false, leave: false };
             function hideLoading() { if (Object.values(loadedFlags).every(Boolean)) { loadingOverlay.style.opacity = '0'; setTimeout(() => loadingOverlay.style.display = 'none', 300); } }
             
             onSnapshot(query(absenceCollection, orderBy("timestamp", "desc")), (snapshot) => {
@@ -405,26 +440,43 @@
                 const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
                 const classesWithAbsencesToday = new Set(localAbsenceData.filter(entry => entry.date === todayString).map(entry => entry.studentClass));
                 
-                renderLog(localAbsenceData);
-                renderPendingAbsences(localAbsenceData); 
-                updateSummaryTable(localAbsenceData, classesWithAbsencesToday);
+                const pendingAbsences = localAbsenceData.filter(a => a.status === 'pending');
+                renderPendingAbsences(pendingAbsences);
                 
+                const event = new Event('input');
+                searchInput.dispatchEvent(event);
+
+                updateSummaryTable(localAbsenceData, classesWithAbsencesToday);
                 loadedFlags.absence = true;
                 hideLoading();
             });
 
-            onSnapshot(query(registrationCollection, orderBy("timestamp", "desc")), (snapshot) => { localRegistrationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderRegistrationLog(localRegistrationData); loadedFlags.registration = true; hideLoading(); });
+            onSnapshot(query(registrationCollection, orderBy("timestamp", "desc")), (snapshot) => { 
+                localRegistrationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+                const event = new Event('input');
+                registrationSearchInput.dispatchEvent(event);
+                loadedFlags.registration = true; 
+                hideLoading(); 
+            });
 
             onSnapshot(query(examScheduleCollection), (snapshot) => {
                 localExamData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                applyExamFilters(); 
+                applyExamFilters();
                 loadedFlags.exam = true;
+                hideLoading();
+            });
+            
+            onSnapshot(query(leaveCollection, orderBy("startDate", "desc")), (snapshot) => {
+                localLeaveData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderLeaveLog(localLeaveData);
+                loadedFlags.leave = true;
                 hideLoading();
             });
 
             function updateSummaryTable(data, classesWithAbsencesToday) {
                 const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
                 const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
+                
                 document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
                 
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
@@ -438,61 +490,60 @@
                     }
                 });
             }
+            
+            function renderPendingAbsences(dataToRender) {
+                pendingAbsenceLog.innerHTML = '';
+                if (dataToRender.length === 0) {
+                    const tr = pendingAbsenceLog.appendChild(document.createElement('tr'));
+                    const td = tr.appendChild(document.createElement('td'));
+                    td.colSpan = 6;
+                    td.textContent = "Không có đơn xin phép nào chờ duyệt.";
+                    td.className = 'text-gray-500 py-4 text-center';
+                } else {
+                    dataToRender.forEach(entry => {
+                        const tr = pendingAbsenceLog.appendChild(document.createElement('tr'));
+                        tr.className = 'hover:bg-gray-50';
+                        tr.innerHTML = `
+                            <td class="important-column">${entry.name}</td>
+                            <td>${entry.studentClass}</td>
+                            <td class="important-column">${entry.subject}</td>
+                            <td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td>
+                            <td>${entry.session}</td>
+                            <td class="space-x-2">
+                                <button class="btn btn-approve text-xs px-2 py-1" data-id="${entry.id}"><i class="fas fa-check"></i> Duyệt</button>
+                                <button class="btn btn-reject text-xs px-2 py-1" data-id="${entry.id}"><i class="fas fa-times"></i> Từ chối</button>
+                            </td>
+                        `;
+                    });
+                }
+            }
 
             function renderLog(dataToRender) {
                 absenceLog.innerHTML = '';
                 if (dataToRender.length === 0) { const tr = absenceLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 8; td.textContent = "Chưa có dữ liệu điểm danh."; td.className = 'text-gray-500 py-4 text-center'; } else {
                     dataToRender.forEach(entry => { 
                         const tr = absenceLog.appendChild(document.createElement('tr')); 
-                        tr.className = 'hover:bg-gray-50';
+                        tr.className = 'hover:bg-gray-50'; 
                         
                         let statusHtml = '';
-                        if (entry.status === 'pending') {
-                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
-                        } else if (entry.status === 'approved') {
-                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
-                        } else if (entry.status === 'rejected') {
-                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                        if(entry.permission === 'Có phép') {
+                             if (entry.status === 'pending') {
+                                statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                            } else if (entry.status === 'approved') {
+                                statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                            } else if (entry.status === 'rejected') {
+                                statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                            }
                         }
 
                         tr.innerHTML = `<td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td class="important-column">${entry.subject}</td><td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td><td>${entry.session}</td><td class="font-semibold ${entry.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'}">${entry.permission}</td><td>${statusHtml}</td><td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>`; 
                     });
                 }
             }
-
-            function renderPendingAbsences(data) {
-                const pendingData = data.filter(entry => entry.status === 'pending');
-                pendingAbsenceTableBody.innerHTML = '';
-                if (pendingData.length === 0) {
-                    pendingAbsenceTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-4">Không có đơn xin phép nào đang chờ duyệt.</td></tr>`;
-                } else {
-                    pendingData.forEach(entry => {
-                        const tr = pendingAbsenceTableBody.appendChild(document.createElement('tr'));
-                        tr.className = 'hover:bg-gray-50';
-                        tr.innerHTML = `
-                            <td class="font-semibold">${entry.name}</td>
-                            <td>${entry.studentClass}</td>
-                            <td>${entry.subject}</td>
-                            <td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td>
-                            <td>${entry.session}</td>
-                            <td class="space-x-2">
-                                <button class="btn text-white py-1 px-3 bg-green-500 hover:bg-green-600 btn-approve" data-id="${entry.id}"><i class="fa-solid fa-check mr-1"></i>Duyệt</button>
-                                <button class="btn text-white py-1 px-3 bg-red-500 hover:bg-red-600 btn-reject" data-id="${entry.id}"><i class="fa-solid fa-times mr-1"></i>Từ chối</button>
-                            </td>
-                        `;
-                    });
-                }
-            }
             
             function renderRegistrationLog(dataToRender) {
                 registrationLog.innerHTML = '';
-                if (dataToRender.length === 0) { 
-                    const tr = registrationLog.appendChild(document.createElement('tr')); 
-                    const td = tr.appendChild(document.createElement('td')); 
-                    td.colSpan = 10; 
-                    td.textContent = "Chưa có học viên nào đăng ký."; 
-                    td.className = 'text-gray-500 py-4 text-center'; 
-                } else {
+                if (dataToRender.length === 0) { const tr = registrationLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 10; td.textContent = "Chưa có học viên nào đăng ký."; td.className = 'text-gray-500 py-4 text-center'; } else {
                     dataToRender.forEach((entry, index) => {
                         const tr = registrationLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
@@ -508,39 +559,24 @@
                         const chuyenDeText = entry.chuyenDe || 'N/A';
                         
                         let statusHtml = '';
+                        let actionButtons = `<button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}" data-action="delete-reg"><i class="fas fa-trash-alt"></i></button>`;
+                        
                         if (entry.status === 'pending') {
                             statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                            actionButtons = `
+                                <div class="flex gap-2 justify-center">
+                                    <button class="btn btn-approve text-xs px-2 py-1" data-id="${entry.id}" data-action="approve-reg"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-reject text-xs px-2 py-1" data-id="${entry.id}" data-action="reject-reg"><i class="fas fa-times"></i></button>
+                                    ${actionButtons}
+                                </div>
+                            `;
                         } else if (entry.status === 'approved') {
                             statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
                         } else if (entry.status === 'rejected') {
                             statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
                         }
 
-                        let actionsHtml = `<button class="text-red-500 hover:text-red-700 font-medium btn-delete-reg" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button>`;
-                        if (entry.status === 'pending') {
-                            actionsHtml = `
-                                <div class="flex justify-center items-center gap-2">
-                                   <button class="btn text-white py-1 px-2 text-xs bg-green-500 hover:bg-green-600 btn-approve-reg" data-id="${entry.id}" title="Duyệt"><i class="fa-solid fa-check"></i></button>
-                                   <button class="btn text-white py-1 px-2 text-xs bg-amber-500 hover:bg-amber-600 btn-reject-reg" data-id="${entry.id}" title="Từ chối"><i class="fa-solid fa-times"></i></button>
-                                   ${actionsHtml}
-                                </div>
-                            `;
-                        } else {
-                             actionsHtml = `<div class="flex justify-center items-center">${actionsHtml}</div>`;
-                        }
-
-
-                        tr.innerHTML = `
-                            <td class="important-column">${index + 1}</td>
-                            <td class="important-column">${entry.name}</td>
-                            <td>${entry.studentClass}</td>
-                            <td>${entry.chuNhiem}</td>
-                            <td class="important-column">${entry.subject}</td>
-                            <td>${chuyenDeText}</td>
-                            <td class="text-left !whitespace-normal">${thoiGianHocHTML}</td>
-                            <td>${entry.hocCungLop}</td>
-                            <td>${statusHtml}</td>
-                            <td>${actionsHtml}</td>`;
+                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td>${statusHtml}</td><td>${actionButtons}</td>`;
                     });
                 }
             }
@@ -563,41 +599,97 @@
                     `;
                 });
             }
+
+             function renderLeaveLog(dataToRender) {
+                leaveLog.innerHTML = '';
+                if (dataToRender.length === 0) {
+                    const tr = leaveLog.appendChild(document.createElement('tr'));
+                    const td = tr.appendChild(document.createElement('td'));
+                    td.colSpan = 7;
+                    td.textContent = "Chưa có học viên nào bảo lưu.";
+                    td.className = 'text-gray-500 py-4 text-center';
+                } else {
+                    dataToRender.forEach((entry, index) => {
+                        const tr = leaveLog.appendChild(document.createElement('tr'));
+                        tr.className = 'hover:bg-gray-50';
+
+                        const fileLink = entry.fileURL 
+                            ? `<a href="${entry.fileURL}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt"></i> Xem</a>`
+                            : 'Không có';
+
+                        tr.innerHTML = `
+                            <td class="important-column">${index + 1}</td>
+                            <td class="important-column">${entry.name}</td>
+                            <td>${entry.studentClass}</td>
+                            <td>${new Date(entry.startDate).toLocaleDateString('vi-VN')}</td>
+                            <td class="!whitespace-normal text-left">${entry.reason}</td>
+                            <td>${fileLink}</td>
+                            <td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>
+                        `;
+                    });
+                }
+            }
              
             async function addAbsence(entry) { try { await addDoc(absenceCollection, entry); showNotification('Đã thêm điểm danh thành công!'); } catch (e) { console.error("Error adding absence: ", e); showNotification('Có lỗi xảy ra, không thể thêm.', true); } }
             async function addRegistration(entry) { try { await addDoc(registrationCollection, entry); showNotification('Đăng ký học bổ sung thành công!'); } catch (e) { console.error("Error adding registration: ", e); showNotification('Có lỗi xảy ra, không thể đăng ký.', true); } }
+            async function addLeaveRequest(entry) { try { await addDoc(leaveCollection, entry); showNotification('Đã lưu thông tin bảo lưu thành công!'); } catch (e) { console.error("Error adding leave request: ", e); showNotification('Có lỗi xảy ra, không thể lưu.', true); throw e; } }
+            
             async function deleteAbsence(id) { try { await deleteDoc(doc(db, "diem-danh", id)); showNotification("Đã xóa mục điểm danh."); } catch (e) { console.error("Error deleting absence: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteRegistration(id) { try { await deleteDoc(doc(db, "dang-ky-hoc-bo-sung", id)); showNotification("Đã xóa đăng ký."); } catch (e) { console.error("Error deleting registration: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteExamSchedule(id) { try { await deleteDoc(doc(db, "lich-thi", id)); showNotification("Đã xóa lịch thi."); } catch (e) { console.error("Error deleting exam schedule: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             
-            async function updateRegistrationStatus(id, newStatus) {
-                const docRef = doc(db, "dang-ky-hoc-bo-sung", id);
+            async function deleteLeaveRequest(id) {
                 try {
-                    await updateDoc(docRef, { status: newStatus });
-                    showNotification(`Đã cập nhật trạng thái đăng ký thành công.`);
+                    const entryToDelete = localLeaveData.find(entry => entry.id === id);
+                    if (entryToDelete && entryToDelete.filePath) {
+                        const fileRef = ref(storage, entryToDelete.filePath);
+                        await deleteObject(fileRef);
+                    }
+                    await deleteDoc(doc(db, "bao-luu-hoc-tap", id));
+                    showNotification("Đã xóa thông tin bảo lưu và file đính kèm.");
+                } catch (e) {
+                    console.error("Error deleting leave request: ", e);
+                    if (e.code === 'storage/object-not-found') {
+                         try {
+                            await deleteDoc(doc(db, "bao-luu-hoc-tap", id));
+                            showNotification("Đã xóa thông tin bảo lưu (không tìm thấy file đính kèm).");
+                         } catch (deleteError) {
+                             showNotification('Lỗi xóa thông tin bảo lưu.', true);
+                         }
+                    } else {
+                         showNotification('Có lỗi xảy ra, không thể xóa.', true);
+                    }
+                }
+            }
+
+            async function updateAbsenceStatus(id, status, newPermission = null) {
+                try {
+                    const docRef = doc(db, "diem-danh", id);
+                    const updateData = { status };
+                    if (newPermission) {
+                        updateData.permission = newPermission;
+                    }
+                    await updateDoc(docRef, updateData);
+                    showNotification("Đã cập nhật trạng thái đơn phép.");
+                } catch (e) {
+                    console.error("Error updating status: ", e);
+                    showNotification('Có lỗi xảy ra, không thể cập nhật.', true);
+                }
+            }
+            async function updateRegistrationStatus(id, status) {
+                 try {
+                    const docRef = doc(db, "dang-ky-hoc-bo-sung", id);
+                    await updateDoc(docRef, { status });
+                    showNotification("Đã cập nhật trạng thái đăng ký.");
                 } catch (e) {
                     console.error("Error updating registration status: ", e);
                     showNotification('Có lỗi xảy ra, không thể cập nhật.', true);
                 }
             }
 
-            async function updateAbsenceStatus(id, newStatus, newPermission = null) {
-                const docRef = doc(db, "diem-danh", id);
-                try {
-                    const updateData = { status: newStatus };
-                    if (newPermission) {
-                        updateData.permission = newPermission;
-                    }
-                    await updateDoc(docRef, updateData);
-                    showNotification(`Đã cập nhật trạng thái thành công.`);
-                } catch (e) {
-                    console.error("Error updating status: ", e);
-                    showNotification('Có lỗi xảy ra, không thể cập nhật.', true);
-                }
-            }
 
             absenceForm.addEventListener('submit', function (e) { 
-                e.preventDefault();
+                e.preventDefault(); 
                 const permissionValue = document.getElementById('permission').value;
                 const absenceData = { 
                     name: document.getElementById('studentName').value, 
@@ -612,21 +704,21 @@
                 if (permissionValue === 'Có phép') {
                     absenceData.status = 'pending';
                 } else {
-                    absenceData.status = 'n/a';
+                    absenceData.status = 'n/a'; // Not applicable
                 }
 
                 addAbsence(absenceData);
-                this.reset();
-                document.getElementById('absenceDate').valueAsDate = new Date();
+                this.reset(); 
+                document.getElementById('absenceDate').valueAsDate = new Date(); 
                 document.getElementById('studentName').focus(); 
             });
             
             registrationForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const chuyenDeValue = document.getElementById('regChuyenDe').value.trim();
-                if (!chuyenDeValue) { 
-                    showNotification('Vui lòng nhập tên chuyên đề.', true); 
-                    return; 
+                if (!chuyenDeValue) {
+                    showNotification('Vui lòng nhập tên chuyên đề.', true);
+                    return;
                 }
                 
                 const thoiGianHoc = [];
@@ -647,12 +739,65 @@
                     thoiGianHoc, 
                     hocCungLop: document.getElementById('regHocCungLop').value, 
                     timestamp: serverTimestamp(),
-                    status: 'pending'
+                    status: 'pending' // Default status
                 };
                 addRegistration(formData); 
                 this.reset(); 
                 thoiGianHocContainer.innerHTML = '';
                 addSessionInput();
+            });
+
+            leaveForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('leaveFile');
+                const file = fileInput.files[0];
+                const submitButton = this.querySelector('button[type="submit"]');
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<i class="fas fa-spinner animate-spin mr-2"></i> Đang xử lý...`;
+                
+                try {
+                    const formData = {
+                        name: document.getElementById('leaveStudentName').value,
+                        studentClass: document.getElementById('leaveStudentClass').value,
+                        startDate: document.getElementById('leaveStartDate').value,
+                        reason: document.getElementById('leaveReason').value,
+                        fileURL: '',
+                        filePath: ''
+                    };
+                    
+                    if(file){
+                        const filePath = `decisions/${Date.now()}_${file.name}`;
+                        const storageRef = ref(storage, filePath);
+                        const snapshot = await uploadBytes(storageRef, file);
+                        const downloadURL = await getDownloadURL(snapshot.ref);
+                        formData.fileURL = downloadURL;
+                        formData.filePath = filePath;
+                    }
+
+                    await addLeaveRequest(formData);
+                    this.reset();
+                    document.getElementById('leaveStartDate').valueAsDate = new Date();
+
+                } catch (error) {
+                    console.error("Error during leave form submission: ", error);
+                    let message = 'Có lỗi xảy ra trong quá trình lưu.';
+                     if (error.code) { // It's likely a Firebase error
+                         if (error.code.startsWith('storage/')) {
+                            message = 'Lỗi khi tải file lên.';
+                            if (error.code === 'storage/unauthorized') {
+                                message = 'Lỗi: Không có quyền tải file lên. Vui lòng kiểm tra lại cài đặt Firebase.';
+                            }
+                        } else if (error.code.startsWith('permission-denied')) {
+                             message = 'Lỗi: Không có quyền ghi dữ liệu. Vui lòng kiểm tra lại cài đặt Firestore.';
+                        }
+                    }
+                    showNotification(message, true);
+                } finally {
+                    // This will always run, regardless of success or failure in the try block
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = `<i class="fa-solid fa-save mr-2"></i>Lưu thông tin`;
+                }
             });
 
             // Exam File Import Logic
@@ -673,6 +818,7 @@
                         const worksheet = workbook.Sheets[firstSheetName];
                         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                         
+                        // Validate headers
                         const headers = json[0];
                         if (headers[0] !== 'Lop' || headers[1] !== 'MonHoc' || headers[2] !== 'NgayThi' || headers[3] !== 'Buoi') {
                              throw new Error('Tiêu đề cột không hợp lệ. Phải là Lop, MonHoc, NgayThi, Buoi.');
@@ -703,7 +849,7 @@
 
                                 if (!examDate || isNaN(examDate.getTime())) {
                                     console.warn(`Skipping invalid date '${rawDateValue}' for class ${record.Lop}.`);
-                                    return; 
+                                    return; // Skip this record
                                 }
                                 
                                 const formattedDate = examDate.toISOString().split('T')[0];
@@ -724,7 +870,7 @@
 
                         await batch.commit();
                         showNotification(`Đã nhập thành công ${jsonData.length} mục lịch thi.`);
-                        examFileUpload.value = '';
+                        examFileUpload.value = ''; // Reset file input
 
                     } catch (error) {
                         console.error("Error processing Excel file: ", error);
@@ -793,91 +939,54 @@
                 updateSessionButtons();
             }
 
-            function exportRegistrationsToExcel() {
-                if (localRegistrationData.length === 0) {
-                    showNotification('Không có dữ liệu để xuất.', true);
-                    return;
-                }
-
-                const dataToExport = localRegistrationData.map((entry, index) => {
-                    const thoiGianHocFormatted = (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc))
-                        ? entry.thoiGianHoc.map(t => {
-                            const ngayHoc = t.ngay ? new Date(t.ngay).toLocaleDateString('vi-VN') : 'N/A';
-                            return `${ngayHoc} (${t.buoi || 'N/A'})`;
-                        }).join('; ')
-                        : 'N/A';
-
-                    return {
-                        'STT': index + 1,
-                        'Họ tên HV': entry.name,
-                        'Tên lớp': entry.studentClass,
-                        'Chủ nhiệm': entry.chuNhiem,
-                        'Môn học': entry.subject,
-                        'Chuyên đề': entry.chuyenDe,
-                        'Thời gian học': thoiGianHocFormatted,
-                        'Học cùng lớp': entry.hocCungLop
-                    };
-                });
-
-                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachDangKy');
-
-                const colWidths = [
-                    { wch: 5 },  // STT
-                    { wch: 25 }, // Họ tên HV
-                    { wch: 15 }, // Tên lớp
-                    { wch: 25 }, // Chủ nhiệm
-                    { wch: 15 }, // Môn học
-                    { wch: 30 }, // Chuyên đề
-                    { wch: 40 }, // Thời gian học
-                    { wch: 15 }  // Học cùng lớp
-                ];
-                worksheet['!cols'] = colWidths;
-
-                XLSX.writeFile(workbook, 'DanhSachDangKyHocBoSung.xlsx');
-                showNotification('Đã xuất file Excel thành công!');
-            }
-
             addSessionBtn.addEventListener('click', addSessionInput);
             absenceLog.addEventListener('click', (e) => { const button = e.target.closest('button'); if (button && button.dataset.id) showConfirm("Bạn có chắc chắn muốn xóa mục điểm danh này không?", () => deleteAbsence(button.dataset.id)); });
             
             registrationLog.addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.btn-delete-reg');
-                const approveBtn = e.target.closest('.btn-approve-reg');
-                const rejectBtn = e.target.closest('.btn-reject-reg');
+                const button = e.target.closest('button');
+                if (!button || !button.dataset.id) return;
                 
-                if (deleteBtn) {
-                    showConfirm("Bạn có chắc chắn muốn XÓA đơn đăng ký này không?", () => deleteRegistration(deleteBtn.dataset.id));
+                const action = button.dataset.action;
+                const id = button.dataset.id;
+
+                if (action === 'delete-reg') {
+                    showConfirm("Bạn có chắc chắn muốn xóa đăng ký này không?", () => deleteRegistration(id));
+                } else if (action === 'approve-reg') {
+                    updateRegistrationStatus(id, 'approved');
+                } else if (action === 'reject-reg') {
+                    updateRegistrationStatus(id, 'rejected');
                 }
-                if (approveBtn) {
-                    showConfirm("Bạn có chắc chắn muốn DUYỆT đơn đăng ký này không?", () => updateRegistrationStatus(approveBtn.dataset.id, 'approved'));
+            });
+
+            pendingAbsenceLog.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button || !button.dataset.id) return;
+
+                if(button.classList.contains('btn-approve')) {
+                    updateAbsenceStatus(button.dataset.id, 'approved');
+                } else if(button.classList.contains('btn-reject')) {
+                    showConfirm("Bạn có chắc chắn từ chối đơn này không? Lý do sẽ được chuyển thành 'Không phép'.", () => {
+                         updateAbsenceStatus(button.dataset.id, 'rejected', 'Không phép');
+                    });
                 }
-                if (rejectBtn) {
-                    showConfirm("Bạn có chắc chắn muốn TỪ CHỐI đơn đăng ký này không?", () => updateRegistrationStatus(rejectBtn.dataset.id, 'rejected'));
+            });
+
+            leaveLog.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button && button.dataset.id) {
+                    showConfirm("Bạn có chắc chắn muốn xóa thông tin bảo lưu này không?", () => deleteLeaveRequest(button.dataset.id));
                 }
             });
 
             searchInput.addEventListener('input', () => renderLog(localAbsenceData.filter(el => Object.values(el).some(val => String(val).toLowerCase().includes(searchInput.value.toLowerCase().trim())))));
-            exportRegistrationsBtn.addEventListener('click', exportRegistrationsToExcel);
             
-            pendingAbsenceTableBody.addEventListener('click', (e) => {
-                const approveBtn = e.target.closest('.btn-approve');
-                const rejectBtn = e.target.closest('.btn-reject');
-                if (approveBtn) {
-                    updateAbsenceStatus(approveBtn.dataset.id, 'approved');
-                }
-                if (rejectBtn) {
-                    showConfirm("Bạn có chắc muốn từ chối đơn này không? Lượt vắng sẽ bị chuyển thành 'Không phép'.", 
-                        () => updateAbsenceStatus(rejectBtn.dataset.id, 'rejected', 'Không phép'));
-                }
-            });
-
             registrationSearchInput.addEventListener('input', () => {
                 const searchTerm = registrationSearchInput.value.toLowerCase().trim();
                 const filteredData = localRegistrationData.filter(entry => {
-                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, entry.chuyenDe];
-                    entry.thoiGianHoc.forEach(t => values.push(t.ngay, t.buoi));
+                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, entry.chuyenDe, entry.status];
+                     if (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) {
+                        entry.thoiGianHoc.forEach(t => values.push(t.ngay, t.buoi));
+                    }
                     return values.some(val => String(val).toLowerCase().includes(searchTerm));
                 });
                 renderRegistrationLog(filteredData);
@@ -928,6 +1037,46 @@
             confirmCancel.addEventListener('click', () => closeModalUI(confirmModal));
             confirmOk.addEventListener('click', () => { closeModalUI(confirmModal); if (confirmCallback) confirmCallback(); });
             
+            exportExcelBtn.addEventListener('click', () => {
+                const dataToExport = localRegistrationData.map((entry, index) => {
+                    let thoiGianHocText = 'N/A';
+                    if (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) {
+                        thoiGianHocText = entry.thoiGianHoc.map(t => {
+                            const ngayHoc = t.ngay ? new Date(t.ngay).toLocaleDateString('vi-VN') : 'N/A';
+                            return `${ngayHoc} (${t.buoi || 'N/A'})`;
+                        }).join('; ');
+                    }
+                    
+                    let statusText = entry.status || '';
+                    if (statusText === 'pending') statusText = 'Chờ duyệt';
+                    if (statusText === 'approved') statusText = 'Đã duyệt';
+                    if (statusText === 'rejected') statusText = 'Đã từ chối';
+
+                    return {
+                        'STT': index + 1,
+                        'Họ tên HV': entry.name,
+                        'Tên lớp': entry.studentClass,
+                        'Chủ nhiệm': entry.chuNhiem,
+                        'Môn học': entry.subject,
+                        'Chuyên đề': entry.chuyenDe,
+                        'Thời gian học': thoiGianHocText,
+                        'Học cùng lớp': entry.hocCungLop,
+                        'Trạng thái': statusText
+                    };
+                });
+
+                if (dataToExport.length === 0) {
+                    showNotification('Không có dữ liệu để xuất.', true);
+                    return;
+                }
+
+                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachDangKy');
+                XLSX.writeFile(workbook, 'DanhSachDangKyHocBoSung.xlsx');
+                showNotification('Đã xuất file Excel thành công!');
+            });
+
             initializeUI();
         });
     </script>
