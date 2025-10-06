@@ -271,12 +271,28 @@
                 <section class="content-card">
                     <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký học bổ sung</h3>
-                         <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm lịch sử đăng ký..." class="form-input w-full sm:w-64">
+                        <div class="flex items-center gap-2">
+                             <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm lịch sử đăng ký..." class="form-input w-full sm:w-64">
+                             <button id="exportRegistrationsBtn" class="btn btn-secondary whitespace-nowrap"><i class="fa-solid fa-file-excel mr-2"></i>Xuất Excel</button>
+                        </div>
                     </div>
                     <div class="p-4">
                          <div class="table-container">
                             <table class="w-full">
-                                <thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Tên lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th><th>Thao tác</th></tr></thead>
+                                <thead style="background-color: var(--summary-header-bg);">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Họ tên HV</th>
+                                        <th>Tên lớp</th>
+                                        <th>Chủ nhiệm</th>
+                                        <th>Môn học</th>
+                                        <th>Chuyên đề</th>
+                                        <th>Thời gian học</th>
+                                        <th>Học cùng lớp</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="registrationLog" class="bg-white"></tbody>
                             </table>
                         </div>
@@ -326,6 +342,7 @@
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
             const registrationSearchInput = document.getElementById('registrationSearchInput');
+            const exportRegistrationsBtn = document.getElementById('exportRegistrationsBtn');
 
             // Exam Schedule Elements
             const importExamBtn = document.getElementById('importExamBtn');
@@ -469,7 +486,13 @@
             
             function renderRegistrationLog(dataToRender) {
                 registrationLog.innerHTML = '';
-                if (dataToRender.length === 0) { const tr = registrationLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 9; td.textContent = "Chưa có học viên nào đăng ký."; td.className = 'text-gray-500 py-4 text-center'; } else {
+                if (dataToRender.length === 0) { 
+                    const tr = registrationLog.appendChild(document.createElement('tr')); 
+                    const td = tr.appendChild(document.createElement('td')); 
+                    td.colSpan = 10; 
+                    td.textContent = "Chưa có học viên nào đăng ký."; 
+                    td.className = 'text-gray-500 py-4 text-center'; 
+                } else {
                     dataToRender.forEach((entry, index) => {
                         const tr = registrationLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
@@ -483,7 +506,41 @@
                         }
 
                         const chuyenDeText = entry.chuyenDe || 'N/A';
-                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>`;
+                        
+                        let statusHtml = '';
+                        if (entry.status === 'pending') {
+                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                        } else if (entry.status === 'approved') {
+                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                        } else if (entry.status === 'rejected') {
+                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                        }
+
+                        let actionsHtml = `<button class="text-red-500 hover:text-red-700 font-medium btn-delete-reg" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button>`;
+                        if (entry.status === 'pending') {
+                            actionsHtml = `
+                                <div class="flex justify-center items-center gap-2">
+                                   <button class="btn text-white py-1 px-2 text-xs bg-green-500 hover:bg-green-600 btn-approve-reg" data-id="${entry.id}" title="Duyệt"><i class="fa-solid fa-check"></i></button>
+                                   <button class="btn text-white py-1 px-2 text-xs bg-amber-500 hover:bg-amber-600 btn-reject-reg" data-id="${entry.id}" title="Từ chối"><i class="fa-solid fa-times"></i></button>
+                                   ${actionsHtml}
+                                </div>
+                            `;
+                        } else {
+                             actionsHtml = `<div class="flex justify-center items-center">${actionsHtml}</div>`;
+                        }
+
+
+                        tr.innerHTML = `
+                            <td class="important-column">${index + 1}</td>
+                            <td class="important-column">${entry.name}</td>
+                            <td>${entry.studentClass}</td>
+                            <td>${entry.chuNhiem}</td>
+                            <td class="important-column">${entry.subject}</td>
+                            <td>${chuyenDeText}</td>
+                            <td class="text-left !whitespace-normal">${thoiGianHocHTML}</td>
+                            <td>${entry.hocCungLop}</td>
+                            <td>${statusHtml}</td>
+                            <td>${actionsHtml}</td>`;
                     });
                 }
             }
@@ -512,6 +569,17 @@
             async function deleteAbsence(id) { try { await deleteDoc(doc(db, "diem-danh", id)); showNotification("Đã xóa mục điểm danh."); } catch (e) { console.error("Error deleting absence: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteRegistration(id) { try { await deleteDoc(doc(db, "dang-ky-hoc-bo-sung", id)); showNotification("Đã xóa đăng ký."); } catch (e) { console.error("Error deleting registration: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteExamSchedule(id) { try { await deleteDoc(doc(db, "lich-thi", id)); showNotification("Đã xóa lịch thi."); } catch (e) { console.error("Error deleting exam schedule: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
+            
+            async function updateRegistrationStatus(id, newStatus) {
+                const docRef = doc(db, "dang-ky-hoc-bo-sung", id);
+                try {
+                    await updateDoc(docRef, { status: newStatus });
+                    showNotification(`Đã cập nhật trạng thái đăng ký thành công.`);
+                } catch (e) {
+                    console.error("Error updating registration status: ", e);
+                    showNotification('Có lỗi xảy ra, không thể cập nhật.', true);
+                }
+            }
 
             async function updateAbsenceStatus(id, newStatus, newPermission = null) {
                 const docRef = doc(db, "diem-danh", id);
@@ -570,7 +638,17 @@
                 });
                 if (thoiGianHoc.length === 0) { showNotification('Vui lòng chọn ít nhất một buổi học.', true); return; }
 
-                const formData = { name: document.getElementById('regStudentName').value, studentClass: document.getElementById('regStudentClass').value, chuNhiem: document.getElementById('regChuNhiem').value, subject: document.getElementById('regSubject').value, chuyenDe: chuyenDeValue, thoiGianHoc, hocCungLop: document.getElementById('regHocCungLop').value, timestamp: serverTimestamp() };
+                const formData = { 
+                    name: document.getElementById('regStudentName').value, 
+                    studentClass: document.getElementById('regStudentClass').value, 
+                    chuNhiem: document.getElementById('regChuNhiem').value, 
+                    subject: document.getElementById('regSubject').value, 
+                    chuyenDe: chuyenDeValue, 
+                    thoiGianHoc, 
+                    hocCungLop: document.getElementById('regHocCungLop').value, 
+                    timestamp: serverTimestamp(),
+                    status: 'pending'
+                };
                 addRegistration(formData); 
                 this.reset(); 
                 thoiGianHocContainer.innerHTML = '';
@@ -715,10 +793,73 @@
                 updateSessionButtons();
             }
 
+            function exportRegistrationsToExcel() {
+                if (localRegistrationData.length === 0) {
+                    showNotification('Không có dữ liệu để xuất.', true);
+                    return;
+                }
+
+                const dataToExport = localRegistrationData.map((entry, index) => {
+                    const thoiGianHocFormatted = (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc))
+                        ? entry.thoiGianHoc.map(t => {
+                            const ngayHoc = t.ngay ? new Date(t.ngay).toLocaleDateString('vi-VN') : 'N/A';
+                            return `${ngayHoc} (${t.buoi || 'N/A'})`;
+                        }).join('; ')
+                        : 'N/A';
+
+                    return {
+                        'STT': index + 1,
+                        'Họ tên HV': entry.name,
+                        'Tên lớp': entry.studentClass,
+                        'Chủ nhiệm': entry.chuNhiem,
+                        'Môn học': entry.subject,
+                        'Chuyên đề': entry.chuyenDe,
+                        'Thời gian học': thoiGianHocFormatted,
+                        'Học cùng lớp': entry.hocCungLop
+                    };
+                });
+
+                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachDangKy');
+
+                const colWidths = [
+                    { wch: 5 },  // STT
+                    { wch: 25 }, // Họ tên HV
+                    { wch: 15 }, // Tên lớp
+                    { wch: 25 }, // Chủ nhiệm
+                    { wch: 15 }, // Môn học
+                    { wch: 30 }, // Chuyên đề
+                    { wch: 40 }, // Thời gian học
+                    { wch: 15 }  // Học cùng lớp
+                ];
+                worksheet['!cols'] = colWidths;
+
+                XLSX.writeFile(workbook, 'DanhSachDangKyHocBoSung.xlsx');
+                showNotification('Đã xuất file Excel thành công!');
+            }
+
             addSessionBtn.addEventListener('click', addSessionInput);
             absenceLog.addEventListener('click', (e) => { const button = e.target.closest('button'); if (button && button.dataset.id) showConfirm("Bạn có chắc chắn muốn xóa mục điểm danh này không?", () => deleteAbsence(button.dataset.id)); });
-            registrationLog.addEventListener('click', (e) => { const button = e.target.closest('button'); if (button && button.dataset.id) showConfirm("Bạn có chắc chắn muốn xóa đăng ký này không?", () => deleteRegistration(button.dataset.id)); });
+            
+            registrationLog.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.btn-delete-reg');
+                const approveBtn = e.target.closest('.btn-approve-reg');
+                const rejectBtn = e.target.closest('.btn-reject-reg');
+                
+                if (deleteBtn) {
+                    showConfirm("Bạn có chắc chắn muốn XÓA đơn đăng ký này không?", () => deleteRegistration(deleteBtn.dataset.id));
+                }
+                if (approveBtn) {
+                    showConfirm("Bạn có chắc chắn muốn DUYỆT đơn đăng ký này không?", () => updateRegistrationStatus(approveBtn.dataset.id, 'approved'));
+                }
+                if (rejectBtn) {
+                    showConfirm("Bạn có chắc chắn muốn TỪ CHỐI đơn đăng ký này không?", () => updateRegistrationStatus(rejectBtn.dataset.id, 'rejected'));
+                }
+            });
+
             searchInput.addEventListener('input', () => renderLog(localAbsenceData.filter(el => Object.values(el).some(val => String(val).toLowerCase().includes(searchInput.value.toLowerCase().trim())))));
+            exportRegistrationsBtn.addEventListener('click', exportRegistrationsToExcel);
             
             pendingAbsenceTableBody.addEventListener('click', (e) => {
                 const approveBtn = e.target.closest('.btn-approve');
