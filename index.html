@@ -291,8 +291,7 @@
                                 <div><label for="leaveStudentClass" class="block text-sm font-medium text-gray-700 mb-1">Lớp</label><select id="leaveStudentClass" class="form-select" required></select></div>
                                 <div><label for="leaveStartDate" class="block text-sm font-medium text-gray-700 mb-1">Bảo lưu bắt đầu từ ngày</label><input type="date" id="leaveStartDate" class="form-input" required></div>
                                 <div><label for="leaveReason" class="block text-sm font-medium text-gray-700 mb-1">Lý do</label><textarea id="leaveReason" class="form-input" rows="3" placeholder="Quyết định số..."></textarea></div>
-                                <div><label for="leaveFile" class="block text-sm font-medium text-gray-700 mb-1">File Quyết định (PDF, PNG, JPG)</label><input type="file" id="leaveFile" class="form-input" accept=".pdf,.png,.jpg,.jpeg"></div>
-                                 <p class="text-xs text-gray-500"><i class="fa-solid fa-info-circle mr-1"></i>Thời hạn bảo lưu tối đa là 3 năm.</p>
+                                <p class="text-xs text-gray-500"><i class="fa-solid fa-info-circle mr-1"></i>Thời hạn bảo lưu tối đa là 3 năm.</p>
                                 <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white w-full"><i class="fa-solid fa-save mr-2"></i>Lưu thông tin</button>
                             </form>
                         </div>
@@ -300,7 +299,7 @@
                         <div class="lg:col-span-2">
                              <div class="table-container">
                                 <table class="w-full">
-                                    <thead class="bg-blue-800"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Bảo lưu từ ngày</th><th>Lý do</th><th>File QĐ</th><th>Thao tác</th></tr></thead>
+                                    <thead class="bg-blue-800"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Bảo lưu từ ngày</th><th>Lý do</th><th>Thao tác</th></tr></thead>
                                     <tbody id="leaveLog" class="bg-white"></tbody>
                                 </table>
                             </div>
@@ -324,18 +323,30 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp, setDoc, writeBatch, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        
         const firebaseConfig = { apiKey: "AIzaSyAdwypOgoxMcrA2JxsfKD2vUqbnLfUuqzA", authDomain: "diem-danh-hoc-vien.firebaseapp.com", projectId: "diem-danh-hoc-vien", storageBucket: "diem-danh-hoc-vien.firebasestorage.app", messagingSenderId: "186541306115", appId: "1:186541306115:web:89424d662913ec9f9a3936", measurementId: "G-2T5MQRG9JQ" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
-        const absenceCollection = collection(db, 'diem-danh');
-        const registrationCollection = collection(db, 'dang-ky-hoc-bo-sung');
-        const examScheduleCollection = collection(db, 'lich-thi');
-        const leaveCollection = collection(db, 'bao-luu-hoc-tap');
+        const auth = getAuth(app);
 
-        document.addEventListener('DOMContentLoaded', function () {
+        function showAuthError() {
+            const loadingText = document.querySelector("#loadingOverlay p");
+            if (loadingText) {
+                loadingText.textContent = "Lỗi xác thực. Vui lòng kiểm tra lại quy tắc bảo mật của Firebase.";
+            }
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function initializeAppLogic() {
+            const absenceCollection = collection(db, 'diem-danh');
+            const registrationCollection = collection(db, 'dang-ky-hoc-bo-sung');
+            const examScheduleCollection = collection(db, 'lich-thi');
+            const leaveCollection = collection(db, 'bao-luu-hoc-tap');
+
             const subjects = ["Tuần lễ học viên", "TRIET", "KTCT", "CNXH", "TTHCM", "LSĐ", "QLKT", "NNPL", "KTPT", "QHQT", "VHPT", "GDQP", "TGTN", "LLDT", "GIOI", "QCN", "KHLĐ", "XHH", "CTH", "XDĐ", "NgK"];
             const classes = [
                 ...Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`),
@@ -361,12 +372,10 @@
             const pendingAbsenceLog = document.getElementById('pendingAbsenceLog');
             const exportExcelBtn = document.getElementById('exportExcelBtn');
 
-            // Leave of Absence Elements
             const leaveForm = document.getElementById('leaveForm');
             const leaveLog = document.getElementById('leaveLog');
             const leaveStudentClassSelect = document.getElementById('leaveStudentClass');
 
-            // Exam Schedule Elements
             const importExamBtn = document.getElementById('importExamBtn');
             const examFileUpload = document.getElementById('examFileUpload');
             const examLookupTableBody = document.getElementById('examLookupTableBody');
@@ -418,7 +427,6 @@
                     filterSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
                 });
 
-
                 regHocCungLopSelect.appendChild(Object.assign(document.createElement('option'), { value: "Học riêng", textContent: "Học riêng" }));
                 
                 subjects.forEach(sub => {
@@ -439,13 +447,10 @@
                 const today = new Date();
                 const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
                 const classesWithAbsencesToday = new Set(localAbsenceData.filter(entry => entry.date === todayString).map(entry => entry.studentClass));
-                
                 const pendingAbsences = localAbsenceData.filter(a => a.status === 'pending');
                 renderPendingAbsences(pendingAbsences);
-                
                 const event = new Event('input');
                 searchInput.dispatchEvent(event);
-
                 updateSummaryTable(localAbsenceData, classesWithAbsencesToday);
                 loadedFlags.absence = true;
                 hideLoading();
@@ -605,7 +610,7 @@
                 if (dataToRender.length === 0) {
                     const tr = leaveLog.appendChild(document.createElement('tr'));
                     const td = tr.appendChild(document.createElement('td'));
-                    td.colSpan = 7;
+                    td.colSpan = 6;
                     td.textContent = "Chưa có học viên nào bảo lưu.";
                     td.className = 'text-gray-500 py-4 text-center';
                 } else {
@@ -613,17 +618,12 @@
                         const tr = leaveLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
 
-                        const fileLink = entry.fileURL 
-                            ? `<a href="${entry.fileURL}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt"></i> Xem</a>`
-                            : 'Không có';
-
                         tr.innerHTML = `
                             <td class="important-column">${index + 1}</td>
                             <td class="important-column">${entry.name}</td>
                             <td>${entry.studentClass}</td>
                             <td>${new Date(entry.startDate).toLocaleDateString('vi-VN')}</td>
                             <td class="!whitespace-normal text-left">${entry.reason}</td>
-                            <td>${fileLink}</td>
                             <td><button class="text-red-500 hover:text-red-700 font-medium" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button></td>
                         `;
                     });
@@ -632,35 +632,12 @@
              
             async function addAbsence(entry) { try { await addDoc(absenceCollection, entry); showNotification('Đã thêm điểm danh thành công!'); } catch (e) { console.error("Error adding absence: ", e); showNotification('Có lỗi xảy ra, không thể thêm.', true); } }
             async function addRegistration(entry) { try { await addDoc(registrationCollection, entry); showNotification('Đăng ký học bổ sung thành công!'); } catch (e) { console.error("Error adding registration: ", e); showNotification('Có lỗi xảy ra, không thể đăng ký.', true); } }
-            async function addLeaveRequest(entry) { try { await addDoc(leaveCollection, entry); showNotification('Đã lưu thông tin bảo lưu thành công!'); } catch (e) { console.error("Error adding leave request: ", e); showNotification('Có lỗi xảy ra, không thể lưu.', true); throw e; } }
+            async function addLeaveRequest(entry) { try { await addDoc(leaveCollection, entry); showNotification('Đã lưu thông tin bảo lưu.'); } catch (e) { console.error("Error adding leave request: ", e); showNotification('Có lỗi khi lưu thông tin.', true);}}
             
             async function deleteAbsence(id) { try { await deleteDoc(doc(db, "diem-danh", id)); showNotification("Đã xóa mục điểm danh."); } catch (e) { console.error("Error deleting absence: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteRegistration(id) { try { await deleteDoc(doc(db, "dang-ky-hoc-bo-sung", id)); showNotification("Đã xóa đăng ký."); } catch (e) { console.error("Error deleting registration: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
             async function deleteExamSchedule(id) { try { await deleteDoc(doc(db, "lich-thi", id)); showNotification("Đã xóa lịch thi."); } catch (e) { console.error("Error deleting exam schedule: ", e); showNotification('Có lỗi xảy ra, không thể xóa.', true); } }
-            
-            async function deleteLeaveRequest(id) {
-                try {
-                    const entryToDelete = localLeaveData.find(entry => entry.id === id);
-                    if (entryToDelete && entryToDelete.filePath) {
-                        const fileRef = ref(storage, entryToDelete.filePath);
-                        await deleteObject(fileRef);
-                    }
-                    await deleteDoc(doc(db, "bao-luu-hoc-tap", id));
-                    showNotification("Đã xóa thông tin bảo lưu và file đính kèm.");
-                } catch (e) {
-                    console.error("Error deleting leave request: ", e);
-                    if (e.code === 'storage/object-not-found') {
-                         try {
-                            await deleteDoc(doc(db, "bao-luu-hoc-tap", id));
-                            showNotification("Đã xóa thông tin bảo lưu (không tìm thấy file đính kèm).");
-                         } catch (deleteError) {
-                             showNotification('Lỗi xóa thông tin bảo lưu.', true);
-                         }
-                    } else {
-                         showNotification('Có lỗi xảy ra, không thể xóa.', true);
-                    }
-                }
-            }
+            async function deleteLeaveRequest(id) { try { await deleteDoc(doc(db, "bao-luu-hoc-tap", id)); showNotification("Đã xóa thông tin bảo lưu."); } catch (e) { console.error("Error deleting leave request: ", e); showNotification('Có lỗi khi xóa.', true);}}
 
             async function updateAbsenceStatus(id, status, newPermission = null) {
                 try {
@@ -687,7 +664,6 @@
                 }
             }
 
-
             absenceForm.addEventListener('submit', function (e) { 
                 e.preventDefault(); 
                 const permissionValue = document.getElementById('permission').value;
@@ -704,7 +680,7 @@
                 if (permissionValue === 'Có phép') {
                     absenceData.status = 'pending';
                 } else {
-                    absenceData.status = 'n/a'; // Not applicable
+                    absenceData.status = 'n/a';
                 }
 
                 addAbsence(absenceData);
@@ -739,7 +715,7 @@
                     thoiGianHoc, 
                     hocCungLop: document.getElementById('regHocCungLop').value, 
                     timestamp: serverTimestamp(),
-                    status: 'pending' // Default status
+                    status: 'pending'
                 };
                 addRegistration(formData); 
                 this.reset(); 
@@ -747,60 +723,19 @@
                 addSessionInput();
             });
 
-            leaveForm.addEventListener('submit', async function(e) {
+            leaveForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const fileInput = document.getElementById('leaveFile');
-                const file = fileInput.files[0];
-                const submitButton = this.querySelector('button[type="submit"]');
-
-                submitButton.disabled = true;
-                submitButton.innerHTML = `<i class="fas fa-spinner animate-spin mr-2"></i> Đang xử lý...`;
-                
-                try {
-                    const formData = {
-                        name: document.getElementById('leaveStudentName').value,
-                        studentClass: document.getElementById('leaveStudentClass').value,
-                        startDate: document.getElementById('leaveStartDate').value,
-                        reason: document.getElementById('leaveReason').value,
-                        fileURL: '',
-                        filePath: ''
-                    };
-                    
-                    if(file){
-                        const filePath = `decisions/${Date.now()}_${file.name}`;
-                        const storageRef = ref(storage, filePath);
-                        const snapshot = await uploadBytes(storageRef, file);
-                        const downloadURL = await getDownloadURL(snapshot.ref);
-                        formData.fileURL = downloadURL;
-                        formData.filePath = filePath;
-                    }
-
-                    await addLeaveRequest(formData);
-                    this.reset();
-                    document.getElementById('leaveStartDate').valueAsDate = new Date();
-
-                } catch (error) {
-                    console.error("Error during leave form submission: ", error);
-                    let message = 'Có lỗi xảy ra trong quá trình lưu.';
-                     if (error.code) { // It's likely a Firebase error
-                         if (error.code.startsWith('storage/')) {
-                            message = 'Lỗi khi tải file lên.';
-                            if (error.code === 'storage/unauthorized') {
-                                message = 'Lỗi: Không có quyền tải file lên. Vui lòng kiểm tra lại cài đặt Firebase.';
-                            }
-                        } else if (error.code.startsWith('permission-denied')) {
-                             message = 'Lỗi: Không có quyền ghi dữ liệu. Vui lòng kiểm tra lại cài đặt Firestore.';
-                        }
-                    }
-                    showNotification(message, true);
-                } finally {
-                    // This will always run, regardless of success or failure in the try block
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = `<i class="fa-solid fa-save mr-2"></i>Lưu thông tin`;
-                }
+                const formData = {
+                    name: document.getElementById('leaveStudentName').value,
+                    studentClass: document.getElementById('leaveStudentClass').value,
+                    startDate: document.getElementById('leaveStartDate').value,
+                    reason: document.getElementById('leaveReason').value,
+                };
+                addLeaveRequest(formData);
+                this.reset();
+                document.getElementById('leaveStartDate').valueAsDate = new Date();
             });
 
-            // Exam File Import Logic
             importExamBtn.addEventListener('click', async () => {
                 const file = examFileUpload.files[0];
                 if (!file) {
@@ -818,7 +753,6 @@
                         const worksheet = workbook.Sheets[firstSheetName];
                         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                         
-                        // Validate headers
                         const headers = json[0];
                         if (headers[0] !== 'Lop' || headers[1] !== 'MonHoc' || headers[2] !== 'NgayThi' || headers[3] !== 'Buoi') {
                              throw new Error('Tiêu đề cột không hợp lệ. Phải là Lop, MonHoc, NgayThi, Buoi.');
@@ -839,9 +773,9 @@
                                 } else if (typeof rawDateValue === 'string') {
                                     const parts = rawDateValue.split(/[/\\-]/);
                                     if (parts.length === 3) {
-                                        if(parts[0].length === 4) { // YYYY-MM-DD
+                                        if(parts[0].length === 4) {
                                             examDate = new Date(rawDateValue);
-                                        } else { // Assume DD/MM/YYYY
+                                        } else {
                                             examDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
                                         }
                                     }
@@ -849,14 +783,12 @@
 
                                 if (!examDate || isNaN(examDate.getTime())) {
                                     console.warn(`Skipping invalid date '${rawDateValue}' for class ${record.Lop}.`);
-                                    return; // Skip this record
+                                    return;
                                 }
                                 
                                 const formattedDate = examDate.toISOString().split('T')[0];
-                                
                                 const lopClean = record.Lop.toString().trim();
                                 const monHocClean = record.MonHoc.toString().trim();
-
                                 const docId = `${lopClean}_${monHocClean}`;
                                 const docRef = doc(db, "lich-thi", docId);
                                 batch.set(docRef, {
@@ -870,7 +802,7 @@
 
                         await batch.commit();
                         showNotification(`Đã nhập thành công ${jsonData.length} mục lịch thi.`);
-                        examFileUpload.value = ''; // Reset file input
+                        examFileUpload.value = '';
 
                     } catch (error) {
                         console.error("Error processing Excel file: ", error);
@@ -892,19 +824,16 @@
             function applyExamFilters() {
                 const selectedClass = filterClassSelect.value;
                 const selectedSubject = filterSubjectSelect.value;
-
                 const filteredData = localExamData.filter(exam => {
                     const classMatch = (selectedClass === 'all') || (exam.Lop && exam.Lop.trim() === selectedClass);
                     const subjectMatch = (selectedSubject === 'all') || (exam.MonHoc && exam.MonHoc.trim() === selectedSubject);
                     return classMatch && subjectMatch;
                 });
-
                 renderExamLookupTable(filteredData);
             }
 
             filterClassSelect.addEventListener('change', applyExamFilters);
             filterSubjectSelect.addEventListener('change', applyExamFilters);
-
 
             function updateSessionButtons() {
                 const sessions = thoiGianHocContainer.querySelectorAll('.session-entry');
@@ -1078,6 +1007,19 @@
             });
 
             initializeUI();
+        }
+        
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("Authenticated user:", user.uid);
+                initializeAppLogic();
+            } else {
+                console.log("No user signed in. Attempting anonymous sign-in.");
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Anonymous sign-in failed", error);
+                    showAuthError();
+                });
+            }
         });
     </script>
 </body>
