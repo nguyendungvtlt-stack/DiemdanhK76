@@ -15,20 +15,15 @@
             --primary-dark-color: #1e293b; /* Slate-800 */
             --secondary-color: #0d9488; /* Teal-600 */
             --secondary-dark-color: #0f766e; /* Teal-700 */
-            --summary-header-bg: #881337; /* Rose-900, for a formal look */
+            --summary-header-bg: #3b5998; /* Facebook Blue */
             --pending-color: #f59e0b; /* Amber-500 */
             --approved-color: #16a34a; /* Green-600 */
             --rejected-color: #dc2626; /* Red-600 */
         }
         body { 
             font-family: 'Inter', sans-serif; 
-            background-image: url('Background.jfif');
-            background-color: #f3f0e9;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
         }
-        .content-card { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); border: 1px solid #e2e8f0; }
+        .content-card { background-color: rgba(255, 255, 255, 0.98); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); border: 1px solid #e2e8f0; }
         .table-container { max-width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 0.5rem; max-height: 50vh; overflow-y: auto; }
         table { border-collapse: collapse; width: 100%; }
         th, td { border: 1px solid #e2e8f0; padding: 0.75rem 0.5rem; text-align: center; font-size: 0.875rem; white-space: nowrap; }
@@ -37,9 +32,9 @@
         .form-input:focus, .form-select:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.4); }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.5rem; padding: 0.625rem 1.25rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
         .btn-primary { background-color: var(--primary-color); color: #fff; }
-        .btn-primary:hover { background-color: var(--primary-dark-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .btn-primary:hover { background-color: var(--primary-dark-color); }
         .btn-secondary { background-color: var(--secondary-color); color: #fff; }
-        .btn-secondary:hover { background-color: var(--secondary-dark-color); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .btn-secondary:hover { background-color: var(--secondary-dark-color); }
         #loadingOverlay { transition: opacity 0.3s; }
         .clickable-cell { cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
         .clickable-cell:hover { background-color: #f1f5f9; }
@@ -47,48 +42,53 @@
         .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
         .modal-scale { transform: translate(0, -25%) scale(0.95); opacity: 0; }
         .modal-active { transform: translate(0, 0) scale(1); opacity: 1; }
-        .today-absence-highlight {
-            background-color: #facc15 !important; /* Yellow-400 */
-            color: #1e293b !important; /* Slate-800 for better text contrast */
-        }
+        .today-absence-highlight { background-color: #facc15 !important; color: #1e293b !important; }
         .status-badge { padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; color: white; }
         .status-pending { background-color: var(--pending-color); }
         .status-approved { background-color: var(--approved-color); }
         .status-rejected { background-color: var(--rejected-color); }
-        /* --- STICKY TABLE HEADERS & COLUMNS --- */
-        .table-container thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        #summaryTable > thead > tr > th {
-            background-color: var(--summary-header-bg);
-            color: white;
-        }
+        .table-container thead th { position: sticky; top: 0; z-index: 10; }
+        #summaryTable > thead > tr > th { background-color: var(--summary-header-bg); color: white; }
         #summaryTable th:nth-child(1), #summaryTable td:nth-child(1) {
             position: sticky;
             left: 0;
-            z-index: 1;
+            z-index: 2;
+            width: 60px;
+            min-width: 60px;
         }
         #summaryTable th:nth-child(2), #summaryTable td:nth-child(2) {
             position: sticky;
-            left: 67px; /* width + padding + border */
-            z-index: 1;
+            left: 60px; /* Match width of first column */
+            z-index: 2;
+            min-width: 120px;
         }
-        #summaryTable td:nth-child(1),
-        #summaryTable td:nth-child(2) {
+        #summaryTable td:nth-child(1), #summaryTable td:nth-child(2) {
             background-color: #f1f5f9;
         }
-        #summaryTable th:nth-child(1),
-        #summaryTable th:nth-child(2) {
+        #summaryTable th:nth-child(1), #summaryTable th:nth-child(2) {
             z-index: 11;
         }
          #summaryTable td:nth-child(2) {
             border-right: 2px solid #9ca3af;
         }
+        .k75-header { background-color: #475569 !important; }
+        .k75-cell { background-color: #f1f5f9; }
+        .clickable-cell.k75-cell:hover { background-color: #e2e8f0; }
+        
+        /* New Menu Styles */
+        .menu-item {
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .menu-item.active, .menu-item:hover {
+            background-color: #991b1b; /* red-800 */
+            color: white;
+        }
+        .menu-item.active i, .menu-item:hover i {
+            color: #facc15; /* yellow-400 */
+        }
     </style>
 </head>
-<body class="p-4 sm:p-6 md:p-8">
+<body class="bg-slate-100">
 
     <div id="loadingOverlay" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
         <div class="text-center">
@@ -97,68 +97,69 @@
         </div>
     </div>
 
-    <div class="max-w-screen-2xl mx-auto">
-        <!-- Main Content Column -->
-        <div class="space-y-8">
-            <header class="content-card p-4 md:p-6">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <img src="CODANG, CO TO QUOC.gif" alt="Cờ Đảng, Cờ Tổ Quốc" class="h-20 hidden sm:block">
-                    <div class="flex items-center gap-4 ml-auto">
-                        <div class="text-center md:text-right">
-                            <h1 class="text-xl md:text-3xl font-extrabold text-red-900 uppercase">Học viện Chính trị khu vực II</h1>
-                            <p class="text-sm md:text-base text-gray-800 font-semibold">Ban Quản lý đào tạo, bồi dưỡng</p>
-                            <p class="text-xs md:text-sm text-gray-600 font-medium">Bộ phận quản lý học viên</p>
+    <div class="flex h-screen bg-white">
+        <!-- Sidebar Menu -->
+        <nav id="sidebar-menu" class="w-64 text-slate-100 flex flex-col" style="background: linear-gradient(rgba(40, 0, 0, 0.8), rgba(40, 0, 0, 0.8)), url('Hình nền Biểu tượng Búa - Liềm Đảng Cộng Sản Việt Nam - Tuyệt Kỹ Powerpoint.jfif'); background-size: cover; background-position: center;">
+            <div class="p-4 border-b border-white/20 flex items-center gap-3">
+                <img src="LOGO HV2.png" alt="Logo" class="h-10 w-10">
+                <h1 class="text-sm font-bold text-white tracking-wider">Quản lý học viên</h1>
+            </div>
+            <ul class="flex-1 p-2 space-y-1">
+                <li><button data-page="page-tong-quan" class="menu-item active w-full flex items-center gap-3 p-3 rounded-md text-sm font-semibold"><i class="fas fa-chart-pie w-5 text-center text-yellow-500"></i>Tổng quan</button></li>
+                <li><button data-page="page-diem-danh" class="menu-item w-full flex items-center gap-3 p-3 rounded-md text-sm font-semibold"><i class="fas fa-calendar-check w-5 text-center text-yellow-500"></i>Điểm danh</button></li>
+                <li><button data-page="page-dang-ky" class="menu-item w-full flex items-center gap-3 p-3 rounded-md text-sm font-semibold"><i class="fas fa-book-reader w-5 text-center text-yellow-500"></i>Đăng ký học bổ sung</button></li>
+                <li><button data-page="page-lich-thi" class="menu-item w-full flex items-center gap-3 p-3 rounded-md text-sm font-semibold"><i class="fas fa-graduation-cap w-5 text-center text-yellow-500"></i>Tra cứu lịch thi</button></li>
+            </ul>
+             <div class="p-3 mt-auto border-t border-white/20 text-center text-xs text-slate-300">
+                <p class="font-semibold">Phát triển bởi: Dungcdr</p>
+                <p>Email: nguyendungvtlt@gmail.com</p>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+             <header class="bg-white border-b px-6 py-3 shadow-sm">
+                 <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <img src="CODANG, CO TO QUOC.gif" alt="Cờ Đảng, Cờ Tổ Quốc" class="h-16 hidden md:block">
+                        <h2 id="page-title" class="text-2xl font-bold text-slate-800">Tổng quan</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <h1 class="text-xl lg:text-2xl font-bold uppercase text-red-800">Học viện Chính trị khu vực II</h1>
+                            <p class="text-sm text-slate-600 font-semibold">Ban Quản lý đào tạo, bồi dưỡng</p>
                         </div>
-                        <img src="LOGO HV2.png" alt="Logo Học viện Chính trị khu vực II" class="h-20 w-20 md:h-24 md:w-24 object-contain flex-shrink-0">
+                        <img src="LOGO HV2.png" alt="Logo Học viện" class="h-16 w-16">
                     </div>
                 </div>
             </header>
 
-            <main class="space-y-6">
-                
-                <h2 class="text-2xl font-bold text-gray-800">Phần mềm quản lý<span class="text-slate-700"> điểm danh & đăng ký học bổ sung</span></h2>
-
-                <!-- Bảng thống kê -->
-                <section class="content-card">
-                     <div class="card-header"><h3 class="text-xl font-bold text-slate-700">Bảng thống kê điểm danh</h3></div>
-                     <div class="p-4"><div class="table-container"><table id="summaryTable"><thead><tr><th>STT</th><th>Tên môn học</th></tr></thead><tbody></tbody></table></div></div>
-                </section>
-                
-                <!-- Lịch sử điểm danh -->
-                <section class="content-card">
-                    <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh (Chỉ xem)</h3>
-                        <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử..." class="form-input w-full sm:w-64">
+             <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-slate-50">
+                <!-- Page: Tổng quan -->
+                <section id="page-tong-quan" class="content-page space-y-6">
+                    <div class="content-card">
+                         <div class="card-header"><h3 class="text-xl font-bold text-slate-700">Bảng thống kê điểm danh</h3></div>
+                         <div class="p-4"><div class="table-container"><table id="summaryTable"><thead><tr><th>STT</th><th>Tên môn học</th></tr></thead><tbody></tbody></table></div></div>
                     </div>
-                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>Họ và tên</th><th>Lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th></tr></thead><tbody id="absenceLog" class="bg-white"></tbody></table></div></div>
-                </section>
-
-                <!-- Tra Cứu Lịch Thi -->
-                <section class="content-card">
-                    <div class="card-header"><h3 class="text-xl font-bold text-indigo-800">Tra cứu Lịch thi</h3></div>
-                    <div class="p-6 space-y-4">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <div class="flex-1">
-                                <label for="filterClass" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm theo lớp</label>
-                                <select id="filterClass" class="form-select"></select>
-                            </div>
-                            <div class="flex-1">
-                                <label for="filterSubject" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm theo môn</label>
-                                <select id="filterSubject" class="form-select"></select>
-                            </div>
+                    <div class="content-card">
+                        <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <h3 class="text-xl font-bold text-slate-700">Lịch sử điểm danh (Chỉ xem)</h3>
+                            <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử..." class="form-input w-full sm:w-64">
                         </div>
-                        <div class="table-container max-h-80">
-                           <table class="w-full">
-                               <thead class="bg-stone-700"><tr><th>Lớp</th><th>Môn học</th><th>Ngày thi</th><th>Buổi</th></tr></thead>
-                               <tbody id="examLookupTableBody" class="bg-white"></tbody>
-                           </table>
+                        <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>Họ và tên</th><th>Lớp</th><th>Môn học</th><th>Ngày vắng</th><th>Buổi</th><th>Lý do</th><th>Trạng thái</th></tr></thead><tbody id="absenceLog" class="bg-white"></tbody></table></div></div>
+                    </div>
+                    <div class="content-card">
+                        <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký (Chỉ xem)</h3>
+                             <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm lịch sử đăng ký..." class="form-input w-full sm:w-64">
                         </div>
+                        <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th><th>Trạng thái</th></tr></thead><tbody id="registrationLog" class="bg-white"></tbody></table></div></div>
                     </div>
                 </section>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Form Điểm danh -->
-                    <section class="content-card">
+                
+                <!-- Page: Điểm Danh -->
+                <section id="page-diem-danh" class="content-page hidden space-y-6">
+                    <div class="content-card max-w-3xl mx-auto">
                         <div class="card-header"><h3 class="text-xl font-bold text-slate-700">CNL/Cán bộ Ban QLĐTBD nhập thông tin điểm danh</h3></div>
                         <form id="absenceForm" class="p-6 space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -171,10 +172,12 @@
                             </div>
                             <button type="submit" class="btn btn-primary w-full sm:w-auto"><i class="fa-solid fa-plus"></i>Thêm lượt vắng</button>
                         </form>
-                    </section>
-                    
-                    <!-- Form Đăng ký -->
-                    <section class="content-card">
+                    </div>
+                </section>
+                
+                <!-- Page: Đăng ký học bổ sung -->
+                <section id="page-dang-ky" class="content-page hidden space-y-6">
+                    <div class="content-card max-w-3xl mx-auto">
                         <div class="card-header"><h3 class="text-xl font-bold text-teal-600">Học viên đăng ký học bổ sung</h3></div>
                         <form id="registrationForm" class="p-6 space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -182,16 +185,14 @@
                                 <div><label for="regStudentClass" class="block text-sm font-medium text-gray-700 mb-1">Lớp của bạn</label><select id="regStudentClass" class="form-select" required></select></div>
                                 <div class="sm:col-span-2"><label for="regChuNhiem" class="block text-sm font-medium text-gray-700 mb-1">Chủ nhiệm lớp</label><input type="text" id="regChuNhiem" class="form-input" placeholder="Trần Thị B" required></div>
                                 <div><label for="regSubject" class="block text-sm font-medium text-gray-700 mb-1">Môn học cần bổ sung</label><select id="regSubject" class="form-select" required></select></div>
-                                <div>
+                                 <div>
                                     <label for="regChuyenDe" class="block text-sm font-medium text-gray-700 mb-1">Tên chuyên đề</label>
                                     <input type="text" id="regChuyenDe" class="form-input" placeholder="Nhập tên chuyên đề" required>
                                 </div>
                                 
                                 <div class="sm:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Thời gian học (Tối đa 4 buổi)</label>
-                                    <div id="thoiGianHocContainer" class="space-y-2">
-                                        <!-- Session inputs will be dynamically added here by JS -->
-                                    </div>
+                                    <div id="thoiGianHocContainer" class="space-y-2"></div>
                                     <button type="button" id="addSessionBtn" class="mt-2 text-sm btn bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1"><i class="fa-solid fa-plus mr-1"></i>Thêm buổi</button>
                                 </div>
 
@@ -199,101 +200,134 @@
                             </div>
                             <button type="submit" class="btn btn-secondary w-full sm:w-auto"><i class="fa-solid fa-check"></i>Gửi đăng ký</button>
                         </form>
-                    </section>
-                </div>
-
-                <section class="content-card">
-                    <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký (Chỉ xem)</h3>
-                        <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm trong danh sách..." class="form-input w-full sm:w-64">
                     </div>
-                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th><th>Trạng thái</th></tr></thead><tbody id="registrationLog" class="bg-white"></tbody></table></div></div>
                 </section>
-            </main>
-            
-            <footer class="text-center text-sm text-gray-500 py-4 bg-white/70 backdrop-blur-sm rounded-lg">
-                <p>&copy; 2024 Học viện Chính trị khu vực II.</p>
-                <p>Phát triển bởi: Dungcdr - Email: nguyendungvtlt@gmail.com</p>
-            </footer>
+                
+                <!-- Page: Lịch Thi -->
+                <section id="page-lich-thi" class="content-page hidden space-y-6">
+                     <div class="content-card">
+                        <div class="card-header"><h3 class="text-xl font-bold text-indigo-800">Tra cứu Lịch thi</h3></div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex flex-col md:flex-row gap-4">
+                                <div class="flex-1">
+                                    <label for="filterClass" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm theo lớp</label>
+                                    <select id="filterClass" class="form-select"></select>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="filterSubject" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm theo môn</label>
+                                    <select id="filterSubject" class="form-select"></select>
+                                </div>
+                            </div>
+                            <div class="table-container max-h-80">
+                               <table class="w-full">
+                                   <thead style="background-color: var(--summary-header-bg);"><tr><th>Lớp</th><th>Môn học</th><th>Ngày thi</th><th>Buổi</th></tr></thead>
+                                   <tbody id="examLookupTableBody" class="bg-white"></tbody>
+                               </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+             </main>
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 transition-opacity duration-300"><div class="bg-white rounded-lg shadow-xl w-full max-w-2xl transition-all duration-300 modal-scale"><div class="p-4 border-b flex justify-between items-center"><h3 id="modalTitle" class="text-lg font-bold text-gray-800">Chi tiết điểm danh</h3><button id="closeModal" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button></div><div id="modalBody" class="p-6 max-h-[60vh] overflow-y-auto"></div></div></div>
-    <div id="notification" class="fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg hidden opacity-0 transition-all duration-300 z-50"><p id="notificationMessage"></p></div>
+    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-[60]"><div class="bg-white rounded-lg shadow-xl w-full max-w-2xl transition-all duration-300 modal-scale"><div class="p-4 border-b flex justify-between items-center"><h3 id="modalTitle" class="text-lg font-bold text-gray-800"></h3><button id="closeModal" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button></div><div id="modalBody" class="p-6 max-h-[60vh] overflow-y-auto"></div></div></div>
+    <div id="notification" class="fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg hidden opacity-0 transition-all duration-300 z-[70]"><p id="notificationMessage"></p></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
         const firebaseConfig = { apiKey: "AIzaSyAdwypOgoxMcrA2JxsfKD2vUqbnLfUuqzA", authDomain: "diem-danh-hoc-vien.firebaseapp.com", projectId: "diem-danh-hoc-vien", storageBucket: "diem-danh-hoc-vien.firebasestorage.app", messagingSenderId: "186541306115", appId: "1:186541306115:web:89424d662913ec9f9a3936", measurementId: "G-2T5MQRG9JQ" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const registrationCollection = collection(db, 'dang-ky-hoc-bo-sung');
-        const absenceCollection = collection(db, 'diem-danh');
-        const examScheduleCollection = collection(db, 'lich-thi');
+        const auth = getAuth(app);
 
-        document.addEventListener('DOMContentLoaded', function () {
+        function showAuthError() {
+            const loadingText = document.querySelector("#loadingOverlay p");
+            if (loadingText) loadingText.textContent = "Lỗi xác thực. Vui lòng kiểm tra lại quy tắc bảo mật của Firebase.";
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function initializeAppLogic() {
+            const registrationCollection = collection(db, 'dang-ky-hoc-bo-sung');
+            const absenceCollection = collection(db, 'diem-danh');
+            const examScheduleCollection = collection(db, 'lich-thi');
+
             const subjects = ["Tuần lễ học viên", "TRIET", "KTCT", "CNXH", "TTHCM", "LSĐ", "QLKT", "NNPL", "KTPT", "QHQT", "VHPT", "GDQP", "TGTN", "LLDT", "GIOI", "QCN", "KHLĐ", "XHH", "CTH", "XDĐ", "NgK"];
-            const classes = Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`);
+            const classes = [ ...Array.from({ length: 12 }, (_, i) => `K76.A${(i + 1).toString().padStart(2, '0')}`), 'K75.B06', 'K75.B07', 'K75.B08', 'K75.B09', 'K75.B10' ];
             let localAbsenceData = [], localRegistrationData = [], localExamData = [];
             
+            const pageTitle = document.getElementById('page-title');
             const summaryTableBody = document.getElementById('summaryTable').querySelector('tbody');
             const absenceForm = document.getElementById('absenceForm'), absenceLog = document.getElementById('absenceLog');
             const studentClassSelect = document.getElementById('studentClass'), subjectSelect = document.getElementById('subject');
             const searchInput = document.getElementById('searchInput');
-
             const registrationForm = document.getElementById('registrationForm'), registrationLog = document.getElementById('registrationLog');
             const regStudentClassSelect = document.getElementById('regStudentClass'), regSubjectSelect = document.getElementById('regSubject');
             const regHocCungLopSelect = document.getElementById('regHocCungLop');
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
             const registrationSearchInput = document.getElementById('registrationSearchInput');
-
             const detailsModal = document.getElementById('detailsModal'), modalTitle = document.getElementById('modalTitle'), modalBody = document.getElementById('modalBody'), closeModal = document.getElementById('closeModal');
             const notification = document.getElementById('notification'), notificationMessage = document.getElementById('notificationMessage');
             const loadingOverlay = document.getElementById('loadingOverlay');
-            
             const examLookupTableBody = document.getElementById('examLookupTableBody');
             const filterClassSelect = document.getElementById('filterClass');
             const filterSubjectSelect = document.getElementById('filterSubject');
 
-
             let notificationTimeout;
+            
+            const menuItems = document.querySelectorAll('#sidebar-menu button');
+            const contentPages = document.querySelectorAll('.content-page');
+            
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetPageId = item.dataset.page;
+                    contentPages.forEach(page => page.classList.add('hidden'));
+                    document.getElementById(targetPageId).classList.remove('hidden');
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    pageTitle.textContent = item.textContent;
+                });
+            });
 
             function initializeUI() {
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
-                classes.forEach(cls => headerRow.appendChild(Object.assign(document.createElement('th'), { textContent: cls })));
+                 classes.forEach(cls => {
+                    const th = Object.assign(document.createElement('th'), { textContent: cls });
+                    if (cls.startsWith('K75')) th.classList.add('k75-header');
+                    headerRow.appendChild(th);
+                });
                 
                 subjects.forEach((sub, index) => {
                     const tr = summaryTableBody.appendChild(document.createElement('tr'));
                     tr.appendChild(Object.assign(document.createElement('td'), { textContent: index + 1, className: 'important-column' }));
                     tr.appendChild(Object.assign(document.createElement('td'), { textContent: sub, className: 'important-column' }));
-                    classes.forEach(cls => { const td = Object.assign(document.createElement('td'), { id: `cell-${sub}-${cls}`, textContent: '0' }); td.dataset.subject = sub; td.dataset.class = cls; tr.appendChild(td); });
+                    classes.forEach(cls => { 
+                        const td = Object.assign(document.createElement('td'), { id: `cell-${sub}-${cls}`, 'data-subject': sub, 'data-class': cls }); 
+                         if (cls.startsWith('K75')) td.classList.add('k75-cell');
+                        tr.appendChild(td); 
+                    });
                 });
 
-                classes.forEach(cls => {
-                    studentClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
-                    regStudentClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
-                    regHocCungLopSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
-                });
-
+                const allClassSelects = [studentClassSelect, regStudentClassSelect, regHocCungLopSelect, filterClassSelect];
                 filterClassSelect.appendChild(Object.assign(document.createElement('option'), { value: 'all', textContent: 'Tất cả các lớp' }));
                 classes.forEach(cls => {
-                    filterClassSelect.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls }));
+                    allClassSelects.forEach(sel => sel.appendChild(Object.assign(document.createElement('option'), { value: cls, textContent: cls })));
                 });
-
-                filterSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: 'all', textContent: 'Tất cả các môn' }));
-                subjects.forEach(sub => {
-                    filterSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
-                });
-
+                
                 regHocCungLopSelect.appendChild(Object.assign(document.createElement('option'), { value: "Học riêng", textContent: "Học riêng" }));
                 
+                const allSubjectSelects = [subjectSelect, regSubjectSelect, filterSubjectSelect];
+                filterSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: 'all', textContent: 'Tất cả các môn' }));
                 subjects.forEach(sub => {
-                    subjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
-                    regSubjectSelect.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub }));
+                     allSubjectSelects.forEach(sel => sel.appendChild(Object.assign(document.createElement('option'), { value: sub, textContent: sub })));
                 });
-
+                
                 document.getElementById('absenceDate').valueAsDate = new Date();
                 addSessionInput(); 
             }
@@ -303,10 +337,9 @@
 
             onSnapshot(query(absenceCollection, orderBy("timestamp", "desc")), (snapshot) => {
                 localAbsenceData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const today = new Date();
-                const todayString = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-                const classesWithAbsencesToday = new Set(localAbsenceData.filter(entry => entry.date === todayString).map(entry => entry.studentClass));
-                renderAbsenceLog(localAbsenceData);
+                const today = new Date().toISOString().slice(0, 10);
+                const classesWithAbsencesToday = new Set(localAbsenceData.filter(entry => entry.date === today).map(entry => entry.studentClass));
+                searchInput.dispatchEvent(new Event('input'));
                 updateSummaryTable(localAbsenceData, classesWithAbsencesToday);
                 loadedFlags.absence = true;
                 hideLoading();
@@ -314,9 +347,7 @@
 
             onSnapshot(query(registrationCollection, orderBy("timestamp", "desc")), (snapshot) => { 
                 localRegistrationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
-                // Render with current search term
-                const event = new Event('input');
-                registrationSearchInput.dispatchEvent(event);
+                registrationSearchInput.dispatchEvent(new Event('input'));
                 loadedFlags.registration = true; 
                 hideLoading(); 
             });
@@ -331,12 +362,11 @@
             function updateSummaryTable(data, classesWithAbsencesToday) {
                 const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
                 const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
+                
                 document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
             
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
-                const headers = headerRow.querySelectorAll('th');
-
-                headers.forEach((th, index) => {
+                headerRow.querySelectorAll('th').forEach((th, index) => {
                     if (index < 2) return;
                     th.classList.remove('today-absence-highlight');
                     if (classesWithAbsencesToday.has(th.textContent)) {
@@ -347,20 +377,16 @@
 
             function renderAbsenceLog(dataToRender) {
                 absenceLog.innerHTML = '';
-                if (dataToRender.length === 0) { const tr = absenceLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 7; td.textContent = "Chưa có dữ liệu điểm danh."; td.className = 'text-gray-500 py-4 text-center'; } else {
+                if (dataToRender.length === 0) { absenceLog.innerHTML = `<tr><td colspan="7" class="text-gray-500 py-4 text-center">Chưa có dữ liệu điểm danh.</td></tr>`; } else {
                     dataToRender.forEach((entry) => {
                         const tr = absenceLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
-
                         let statusHtml = '';
-                        if (entry.status === 'pending') {
-                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
-                        } else if (entry.status === 'approved') {
-                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
-                        } else if (entry.status === 'rejected') {
-                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                        if(entry.permission === 'Có phép') {
+                            if (entry.status === 'pending') statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                            else if (entry.status === 'approved') statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                            else if (entry.status === 'rejected') statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
                         }
-
                         tr.innerHTML = `<td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td class="important-column">${entry.subject}</td><td>${new Date(entry.date).toLocaleDateString('vi-VN')}</td><td>${entry.session}</td><td class="font-semibold ${entry.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'}">${entry.permission}</td><td>${statusHtml}</td>`;
                     });
                 }
@@ -368,31 +394,19 @@
 
             function renderRegistrationLog(dataToRender) {
                 registrationLog.innerHTML = '';
-                if (dataToRender.length === 0) { const tr = registrationLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 9; td.textContent = "Chưa có học viên nào đăng ký."; td.className = 'text-gray-500 py-4 text-center'; } else {
+                if (dataToRender.length === 0) { registrationLog.innerHTML = `<tr><td colspan="9" class="text-gray-500 py-4 text-center">Chưa có học viên nào đăng ký.</td></tr>`;} else {
                     dataToRender.forEach((entry, index) => {
                         const tr = registrationLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
                         
-                        let thoiGianHocHTML = 'N/A';
-                        if (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) {
-                            thoiGianHocHTML = entry.thoiGianHoc.map(t => {
-                                const ngayHoc = t.ngay ? new Date(t.ngay).toLocaleDateString('vi-VN') : 'N/A';
-                                return `${ngayHoc} (${t.buoi || 'N/A'})`;
-                            }).join('<br>');
-                        }
-                        
-                        const chuyenDeText = entry.chuyenDe || 'N/A';
+                        const thoiGianHocHTML = (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) ? entry.thoiGianHoc.map(t => `${t.ngay ? new Date(t.ngay).toLocaleDateString('vi-VN') : 'N/A'} (${t.buoi || 'N/A'})`).join('<br>') : 'N/A';
                         
                         let statusHtml = '';
-                        if (entry.status === 'pending') {
-                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
-                        } else if (entry.status === 'approved') {
-                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
-                        } else if (entry.status === 'rejected') {
-                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
-                        }
+                        if (entry.status === 'pending') statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                        else if (entry.status === 'approved') statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                        else if (entry.status === 'rejected') statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
 
-                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td>${statusHtml}</td>`;
+                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${entry.chuyenDe || 'N/A'}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td>${statusHtml}</td>`;
                     });
                 }
             }
@@ -406,77 +420,30 @@
                 examData.sort((a,b) => a.Lop.localeCompare(b.Lop) || a.MonHoc.localeCompare(b.MonHoc)).forEach(exam => {
                     const tr = examLookupTableBody.appendChild(document.createElement('tr'));
                     tr.className = 'hover:bg-gray-50';
-                    tr.innerHTML = `
-                        <td class="font-semibold">${exam.Lop}</td>
-                        <td>${exam.MonHoc}</td>
-                        <td>${exam.NgayThi ? new Date(exam.NgayThi).toLocaleDateString('vi-VN') : 'N/A'}</td>
-                        <td>${exam.BuoiThi || 'N/A'}</td>
-                    `;
+                    tr.innerHTML = `<td class="font-semibold">${exam.Lop}</td><td>${exam.MonHoc}</td><td>${exam.NgayThi ? new Date(exam.NgayThi).toLocaleDateString('vi-VN') : 'N/A'}</td><td>${exam.BuoiThi || 'N/A'}</td>`;
                 });
             }
             
-            async function addAbsence(entry) { 
-                try { 
-                    await addDoc(absenceCollection, entry); 
-                    showNotification('Đã thêm điểm danh thành công! Trạng thái đang chờ duyệt.'); 
-                } catch (e) { 
-                    console.error("Error adding absence: ", e); 
-                    showNotification('Có lỗi xảy ra khi điểm danh.', true); 
-                } 
-            }
-
+            async function addAbsence(entry) { try { await addDoc(absenceCollection, entry); showNotification('Đã thêm điểm danh thành công!'); } catch (e) { console.error("Error adding absence: ", e); showNotification('Có lỗi xảy ra khi điểm danh.', true); } }
             absenceForm.addEventListener('submit', function(e) { 
                 e.preventDefault(); 
                 const permissionValue = document.getElementById('permission').value;
-                const absenceData = { 
-                    name: document.getElementById('studentName').value, 
-                    studentClass: document.getElementById('studentClass').value, 
-                    subject: document.getElementById('subject').value, 
-                    date: document.getElementById('absenceDate').value, 
-                    session: document.getElementById('session').value, 
-                    permission: permissionValue, 
-                    timestamp: serverTimestamp() 
-                };
-
-                if (permissionValue === 'Có phép') {
-                    absenceData.status = 'pending';
-                } else {
-                    absenceData.status = 'n/a';
-                }
-
+                const absenceData = { name: document.getElementById('studentName').value, studentClass: document.getElementById('studentClass').value, subject: document.getElementById('subject').value, date: document.getElementById('absenceDate').value, session: document.getElementById('session').value, permission: permissionValue, timestamp: serverTimestamp() };
+                if (permissionValue === 'Có phép') absenceData.status = 'pending'; else absenceData.status = 'n/a';
                 addAbsence(absenceData);
-                this.reset();
+                this.reset(); 
                 document.getElementById('absenceDate').valueAsDate = new Date(); 
             });
 
             registrationForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const chuyenDeValue = document.getElementById('regChuyenDe').value.trim();
-                if (!chuyenDeValue) {
-                    showNotification('Vui lòng nhập tên chuyên đề.', true);
-                    return;
-                }
+                if (!chuyenDeValue) { showNotification('Vui lòng nhập tên chuyên đề.', true); return; }
                 
-                const thoiGianHoc = [];
-                const sessionEntries = thoiGianHocContainer.querySelectorAll('.session-entry');
-                sessionEntries.forEach(entry => {
-                    const ngay = entry.querySelector('.regNgayHoc').value;
-                    const buoi = entry.querySelector('.regBuoiHoc').value;
-                    if (ngay && buoi) thoiGianHoc.push({ ngay, buoi });
-                });
+                const thoiGianHoc = Array.from(thoiGianHocContainer.querySelectorAll('.session-entry')).map(entry => ({ ngay: entry.querySelector('.regNgayHoc').value, buoi: entry.querySelector('.regBuoiHoc').value })).filter(t => t.ngay && t.buoi);
                 if (thoiGianHoc.length === 0) { showNotification('Vui lòng chọn ít nhất một buổi học.', true); return; }
 
-                const formData = { 
-                    name: document.getElementById('regStudentName').value, 
-                    studentClass: document.getElementById('regStudentClass').value, 
-                    chuNhiem: document.getElementById('regChuNhiem').value, 
-                    subject: document.getElementById('regSubject').value, 
-                    chuyenDe: chuyenDeValue, 
-                    thoiGianHoc, 
-                    hocCungLop: document.getElementById('regHocCungLop').value, 
-                    timestamp: serverTimestamp(),
-                    status: 'pending'
-                };
+                const formData = { name: document.getElementById('regStudentName').value, studentClass: document.getElementById('regStudentClass').value, chuNhiem: document.getElementById('regChuNhiem').value, subject: document.getElementById('regSubject').value, chuyenDe: chuyenDeValue, thoiGianHoc, hocCungLop: document.getElementById('regHocCungLop').value, timestamp: serverTimestamp(), status: 'pending' };
                 try { 
                     await addDoc(registrationCollection, formData); 
                     showNotification('Đăng ký học bổ sung thành công!'); 
@@ -489,115 +456,79 @@
                 }
             });
 
-            registrationSearchInput.addEventListener('input', () => {
-                const searchTerm = registrationSearchInput.value.toLowerCase().trim();
-                const filteredData = localRegistrationData.filter(entry => {
-                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, entry.chuyenDe, entry.status];
-                    if (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) {
-                        entry.thoiGianHoc.forEach(t => values.push(t.ngay, t.buoi));
-                    }
-                    return values.some(val => String(val).toLowerCase().includes(searchTerm));
-                });
-                renderRegistrationLog(filteredData);
-            });
-
              function applyExamFilters() {
                 const selectedClass = filterClassSelect.value;
                 const selectedSubject = filterSubjectSelect.value;
-
-                const filteredData = localExamData.filter(exam => {
-                    const classMatch = (selectedClass === 'all') || (exam.Lop && exam.Lop.trim() === selectedClass);
-                    const subjectMatch = (selectedSubject === 'all') || (exam.MonHoc && exam.MonHoc.trim() === selectedSubject);
-                    return classMatch && subjectMatch;
-                });
-
-                renderExamLookupTable(filteredData);
+                renderExamLookupTable(localExamData.filter(exam => (selectedClass === 'all' || (exam.Lop && exam.Lop.trim() === selectedClass)) && (selectedSubject === 'all' || (exam.MonHoc && exam.MonHoc.trim() === selectedSubject))));
             }
+            [filterClassSelect, filterSubjectSelect].forEach(el => el.addEventListener('change', applyExamFilters));
 
-            filterClassSelect.addEventListener('change', applyExamFilters);
-            filterSubjectSelect.addEventListener('change', applyExamFilters);
 
             function updateSessionButtons() {
                 const sessions = thoiGianHocContainer.querySelectorAll('.session-entry');
-                sessions.forEach((session) => {
-                    const removeBtn = session.querySelector('.remove-session-btn');
-                    removeBtn.classList.toggle('hidden', sessions.length <= 1);
-                });
+                sessions.forEach(s => s.querySelector('.remove-session-btn').classList.toggle('hidden', sessions.length <= 1));
                 addSessionBtn.disabled = sessions.length >= 4;
                 addSessionBtn.classList.toggle('opacity-50', addSessionBtn.disabled);
-                addSessionBtn.classList.toggle('cursor-not-allowed', addSessionBtn.disabled);
             }
 
             function addSessionInput() {
                 if (thoiGianHocContainer.children.length >= 4) return;
                 const sessionDiv = document.createElement('div');
                 sessionDiv.className = 'flex items-center gap-2 session-entry';
-                sessionDiv.innerHTML = `
-                    <input type="date" class="form-input regNgayHoc" required>
-                    <select class="form-select regBuoiHoc" required>
-                        <option value="Cả ngày">Cả ngày</option>
-                        <option value="Sáng">Sáng</option>
-                        <option value="Chiều">Chiều</option>
-                    </select>
-                    <button type="button" class="text-red-500 hover:text-red-700 text-2xl font-bold remove-session-btn">&times;</button>
-                `;
+                sessionDiv.innerHTML = `<input type="date" class="form-input regNgayHoc" required><select class="form-select regBuoiHoc" required><option value="Cả ngày">Cả ngày</option><option value="Sáng">Sáng</option><option value="Chiều">Chiều</option></select><button type="button" class="text-red-500 hover:text-red-700 text-2xl font-bold remove-session-btn">&times;</button>`;
                 sessionDiv.querySelector('.regNgayHoc').valueAsDate = new Date();
-                sessionDiv.querySelector('.remove-session-btn').addEventListener('click', () => {
-                    sessionDiv.remove();
-                    updateSessionButtons();
-                });
+                sessionDiv.querySelector('.remove-session-btn').addEventListener('click', () => { sessionDiv.remove(); updateSessionButtons(); });
                 thoiGianHocContainer.appendChild(sessionDiv);
                 updateSessionButtons();
             }
 
             addSessionBtn.addEventListener('click', addSessionInput);
             
-            searchInput.addEventListener('input', () => { const term = searchInput.value.toLowerCase().trim(); const filtered = localAbsenceData.filter(e => Object.values(e).some(val => String(val).toLowerCase().includes(term))); renderAbsenceLog(filtered); });
+            searchInput.addEventListener('input', () => { const term = searchInput.value.toLowerCase().trim(); renderAbsenceLog(localAbsenceData.filter(e => Object.values(e).some(val => String(val).toLowerCase().includes(term)))); });
             summaryTableBody.addEventListener('click', (e) => { const cell = e.target.closest('.clickable-cell'); if (cell) showDetailsModal(cell.dataset.subject, cell.dataset.class); });
+            registrationSearchInput.addEventListener('input', () => {
+                const searchTerm = registrationSearchInput.value.toLowerCase().trim();
+                renderRegistrationLog(localRegistrationData.filter(entry => Object.values(entry).some(val => String(val).toLowerCase().includes(searchTerm))));
+            });
 
-            const openModal = (modal) => { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.children[0].classList.add('modal-active'); }, 10); }
-            const closeModalUI = (modal) => { modal.children[0].classList.remove('modal-active'); modal.classList.add('opacity-0'); setTimeout(() => modal.classList.add('hidden'), 300); }
+            const openModal = (modal) => { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => modal.children[0].classList.add('modal-active'), 10); }
+            const closeModalUI = (modal) => { modal.children[0].classList.remove('modal-active'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
             function showDetailsModal(subject, studentClass) {
                 const absentStudents = localAbsenceData.filter(e => e.subject === subject && e.studentClass === studentClass).sort((a,b) => a.name.localeCompare(b.name));
                 modalTitle.textContent = `Chi tiết vắng môn ${subject} - Lớp ${studentClass}`;
-                let modalContent = '<p class="text-gray-600">Không có dữ liệu vắng.</p>';
+                modalBody.innerHTML = '<p class="text-gray-600">Không có dữ liệu vắng.</p>';
                 if (absentStudents.length > 0) {
-                    modalContent = '<ul class="space-y-3">';
-                    absentStudents.forEach(student => {
+                    modalBody.innerHTML = '<ul class="space-y-3">' + absentStudents.map(student => {
                         const registration = localRegistrationData.find(reg => reg.name === student.name && reg.studentClass === student.studentClass && reg.subject === student.subject);
                         let registrationInfo = '<p class="text-xs text-red-500 font-semibold mt-1"><i class="fas fa-times-circle mr-1"></i>Chưa đăng ký học bổ sung.</p>';
                         if (registration) { 
-                            let thoiGianHocHTML = '';
-                            if (registration.thoiGianHoc && Array.isArray(registration.thoiGianHoc)) {
-                                 thoiGianHocHTML = registration.thoiGianHoc.map(t => `<li>Ngày ${new Date(t.ngay).toLocaleDateString('vi-VN')} (${t.buoi})</li>`).join('');
-                            }
-                            registrationInfo = `
-                                <div class="text-xs text-green-600 font-semibold mt-1">
-                                    <p><i class="fas fa-check-circle mr-1"></i>Đã ĐK học cùng lớp ${registration.hocCungLop}</p>
-                                    <ul class="list-disc pl-5 mt-1 text-gray-700 font-normal">${thoiGianHocHTML}</ul>
-                                </div>`; 
+                            const thoiGianHocHTML = (registration.thoiGianHoc && Array.isArray(registration.thoiGianHoc)) ? registration.thoiGianHoc.map(t => `<li>Ngày ${new Date(t.ngay).toLocaleDateString('vi-VN')} (${t.buoi})</li>`).join('') : '';
+                            registrationInfo = `<div class="text-xs text-green-600 font-semibold mt-1"><p><i class="fas fa-check-circle mr-1"></i>Đã ĐK học cùng lớp ${registration.hocCungLop}</p><ul class="list-disc pl-5 mt-1 text-gray-700 font-normal">${thoiGianHocHTML}</ul></div>`; 
                         }
-                        
-                        let statusText = '';
-                        if (student.status === 'pending') statusText = ` <span class="status-badge status-pending">Chờ duyệt</span>`;
-                        else if (student.status === 'approved') statusText = ` <span class="status-badge status-approved">Đã duyệt</span>`;
-                        else if (student.status === 'rejected') statusText = ` <span class="status-badge status-rejected">Đã từ chối</span>`;
-
-                        modalContent += `<li class="p-3 rounded-md bg-gray-100 border border-gray-200"><strong class="text-gray-800">${student.name}</strong> - Ngày: ${new Date(student.date).toLocaleDateString('vi-VN')} (${student.session}) - <span class="${student.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'} font-semibold">${student.permission}</span>${statusText}${registrationInfo}</li>`;
-                    });
-                    modalContent += '</ul>';
+                        return `<li class="p-3 rounded-md bg-gray-100 border border-gray-200"><strong class="text-gray-800">${student.name}</strong> - Ngày: ${new Date(student.date).toLocaleDateString('vi-VN')} (${student.session}) - <span class="${student.permission === 'Có phép' ? 'text-green-600' : 'text-red-600'} font-semibold">${student.permission}</span>${registrationInfo}</li>`;
+                    }).join('') + '</ul>';
                 }
-                modalBody.innerHTML = modalContent;
                 openModal(detailsModal);
             }
 
-            function showNotification(message, isError = false) { clearTimeout(notificationTimeout); notificationMessage.textContent = message; notification.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-all duration-300 z-50 ${isError ? 'bg-red-600' : 'bg-green-600'}`; notification.classList.remove('hidden', 'opacity-0'); notificationTimeout = setTimeout(() => notification.classList.add('opacity-0'), 3000); }
+            function showNotification(message, isError = false) { clearTimeout(notificationTimeout); notificationMessage.textContent = message; notification.className = `fixed top-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg transition-all duration-300 z-[70] ${isError ? 'bg-red-600' : 'bg-green-600'}`; notification.classList.remove('hidden', 'opacity-0'); notificationTimeout = setTimeout(() => notification.classList.add('opacity-0'), 3000); }
             
             closeModal.addEventListener('click', () => closeModalUI(detailsModal));
             detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModalUI(detailsModal); });
             
             initializeUI();
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initializeAppLogic();
+            } else {
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Anonymous sign-in failed", error);
+                    showAuthError();
+                });
+            }
         });
     </script>
 </body>
