@@ -203,8 +203,11 @@
                 </div>
 
                 <section class="content-card">
-                    <div class="card-header"><h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký (Chỉ xem)</h3></div>
-                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th></tr></thead><tbody id="registrationLog" class="bg-white"></tbody></table></div></div>
+                    <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="text-xl font-bold text-teal-600">Danh sách đã đăng ký (Chỉ xem)</h3>
+                        <input type="text" id="registrationSearchInput" placeholder="Tìm kiếm trong danh sách..." class="form-input w-full sm:w-64">
+                    </div>
+                    <div class="p-4"><div class="table-container"><table class="w-full"><thead style="background-color: var(--summary-header-bg);"><tr><th>STT</th><th>Họ tên HV</th><th>Lớp</th><th>Chủ nhiệm</th><th>Môn học</th><th>Chuyên đề</th><th>Thời gian học</th><th>Học cùng lớp</th><th>Trạng thái</th></tr></thead><tbody id="registrationLog" class="bg-white"></tbody></table></div></div>
                 </section>
             </main>
             
@@ -244,6 +247,7 @@
             const regHocCungLopSelect = document.getElementById('regHocCungLop');
             const thoiGianHocContainer = document.getElementById('thoiGianHocContainer');
             const addSessionBtn = document.getElementById('addSessionBtn');
+            const registrationSearchInput = document.getElementById('registrationSearchInput');
 
             const detailsModal = document.getElementById('detailsModal'), modalTitle = document.getElementById('modalTitle'), modalBody = document.getElementById('modalBody'), closeModal = document.getElementById('closeModal');
             const notification = document.getElementById('notification'), notificationMessage = document.getElementById('notificationMessage');
@@ -308,7 +312,14 @@
                 hideLoading();
             });
 
-            onSnapshot(query(registrationCollection, orderBy("timestamp", "desc")), (snapshot) => { localRegistrationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderRegistrationLog(localRegistrationData); loadedFlags.registration = true; hideLoading(); });
+            onSnapshot(query(registrationCollection, orderBy("timestamp", "desc")), (snapshot) => { 
+                localRegistrationData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+                // Render with current search term
+                const event = new Event('input');
+                registrationSearchInput.dispatchEvent(event);
+                loadedFlags.registration = true; 
+                hideLoading(); 
+            });
 
              onSnapshot(query(examScheduleCollection), (snapshot) => {
                 localExamData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -357,7 +368,7 @@
 
             function renderRegistrationLog(dataToRender) {
                 registrationLog.innerHTML = '';
-                if (dataToRender.length === 0) { const tr = registrationLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 8; td.textContent = "Chưa có học viên nào đăng ký."; td.className = 'text-gray-500 py-4 text-center'; } else {
+                if (dataToRender.length === 0) { const tr = registrationLog.appendChild(document.createElement('tr')); const td = tr.appendChild(document.createElement('td')); td.colSpan = 9; td.textContent = "Chưa có học viên nào đăng ký."; td.className = 'text-gray-500 py-4 text-center'; } else {
                     dataToRender.forEach((entry, index) => {
                         const tr = registrationLog.appendChild(document.createElement('tr'));
                         tr.className = 'hover:bg-gray-50';
@@ -371,7 +382,17 @@
                         }
                         
                         const chuyenDeText = entry.chuyenDe || 'N/A';
-                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td>`;
+                        
+                        let statusHtml = '';
+                        if (entry.status === 'pending') {
+                            statusHtml = `<span class="status-badge status-pending">Chờ duyệt</span>`;
+                        } else if (entry.status === 'approved') {
+                            statusHtml = `<span class="status-badge status-approved">Đã duyệt</span>`;
+                        } else if (entry.status === 'rejected') {
+                            statusHtml = `<span class="status-badge status-rejected">Đã từ chối</span>`;
+                        }
+
+                        tr.innerHTML = `<td class="important-column">${index + 1}</td><td class="important-column">${entry.name}</td><td>${entry.studentClass}</td><td>${entry.chuNhiem}</td><td class="important-column">${entry.subject}</td><td>${chuyenDeText}</td><td class="text-left !whitespace-normal">${thoiGianHocHTML}</td><td>${entry.hocCungLop}</td><td>${statusHtml}</td>`;
                     });
                 }
             }
@@ -453,7 +474,8 @@
                     chuyenDe: chuyenDeValue, 
                     thoiGianHoc, 
                     hocCungLop: document.getElementById('regHocCungLop').value, 
-                    timestamp: serverTimestamp() 
+                    timestamp: serverTimestamp(),
+                    status: 'pending'
                 };
                 try { 
                     await addDoc(registrationCollection, formData); 
@@ -465,6 +487,18 @@
                     console.error("Error adding registration: ", err); 
                     showNotification('Có lỗi xảy ra, không thể đăng ký.', true); 
                 }
+            });
+
+            registrationSearchInput.addEventListener('input', () => {
+                const searchTerm = registrationSearchInput.value.toLowerCase().trim();
+                const filteredData = localRegistrationData.filter(entry => {
+                    const values = [entry.name, entry.studentClass, entry.chuNhiem, entry.subject, entry.hocCungLop, entry.chuyenDe, entry.status];
+                    if (entry.thoiGianHoc && Array.isArray(entry.thoiGianHoc)) {
+                        entry.thoiGianHoc.forEach(t => values.push(t.ngay, t.buoi));
+                    }
+                    return values.some(val => String(val).toLowerCase().includes(searchTerm));
+                });
+                renderRegistrationLog(filteredData);
             });
 
              function applyExamFilters() {
