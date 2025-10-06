@@ -308,7 +308,11 @@
                     tr.appendChild(Object.assign(document.createElement('td'), { textContent: index + 1, className: 'important-column' }));
                     tr.appendChild(Object.assign(document.createElement('td'), { textContent: sub, className: 'important-column' }));
                     classes.forEach(cls => { 
-                        const td = Object.assign(document.createElement('td'), { id: `cell-${sub}-${cls}`, 'data-subject': sub, 'data-class': cls }); 
+                        const td = document.createElement('td');
+                        td.id = `cell-${sub}-${cls}`;
+                        td.textContent = '0';
+                        td.dataset.subject = sub;
+                        td.dataset.class = cls;
                          if (cls.startsWith('K75')) td.classList.add('k75-cell');
                         tr.appendChild(td); 
                     });
@@ -360,10 +364,34 @@
             });
             
             function updateSummaryTable(data, classesWithAbsencesToday) {
-                const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
-                const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
-                
-                document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
+                // 1. Reset all cell counts to 0 and remove styling before recalculating
+                document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => {
+                    cell.textContent = '0';
+                    cell.classList.remove('clickable-cell');
+                    cell.style.color = '#a1a1aa';
+                });
+
+                // 2. Count absences from the data, trimming whitespace to prevent errors
+                const counts = data.reduce((acc, entry) => {
+                    if (entry.subject && entry.studentClass) {
+                        const subject = entry.subject.trim();
+                        const studentClass = entry.studentClass.trim();
+                        const cellId = `cell-${subject}-${studentClass}`;
+                        acc[cellId] = (acc[cellId] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
+
+                // 3. Update the DOM with the new counts and apply styling
+                for (const cellId in counts) {
+                    const cell = document.getElementById(cellId);
+                    if (cell) {
+                        const count = counts[cellId];
+                        cell.textContent = count;
+                        cell.classList.add('clickable-cell');
+                        cell.style.color = count <= 2 ? '#f59e0b' : '#dc2626';
+                    }
+                }
             
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
                 headerRow.querySelectorAll('th').forEach((th, index) => {
@@ -495,12 +523,32 @@
             const closeModalUI = (modal) => { modal.children[0].classList.remove('modal-active'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
             function showDetailsModal(subject, studentClass) {
-                const absentStudents = localAbsenceData.filter(e => e.subject === subject && e.studentClass === studentClass).sort((a,b) => a.name.localeCompare(b.name));
+                 // Guard clause to prevent execution with invalid data
+                if (typeof subject === 'undefined' || typeof studentClass === 'undefined') {
+                    console.error("showDetailsModal called with undefined arguments:", subject, studentClass);
+                    showNotification("Lỗi: Không thể hiển thị chi tiết.", true);
+                    return;
+                }
+
                 modalTitle.textContent = `Chi tiết vắng môn ${subject} - Lớp ${studentClass}`;
+                
+                // Filter data robustly, checking for existence and trimming whitespace
+                const absentStudents = localAbsenceData.filter(e => 
+                    e.subject && e.studentClass && 
+                    e.subject.trim() === subject && e.studentClass.trim() === studentClass
+                ).sort((a,b) => a.name.localeCompare(b.name));
+
                 modalBody.innerHTML = '<p class="text-gray-600">Không có dữ liệu vắng.</p>';
+
                 if (absentStudents.length > 0) {
                     modalBody.innerHTML = '<ul class="space-y-3">' + absentStudents.map(student => {
-                        const registration = localRegistrationData.find(reg => reg.name === student.name && reg.studentClass === student.studentClass && reg.subject === student.subject);
+                        // Make the registration find more robust against whitespace and missing data
+                        const registration = localRegistrationData.find(reg => 
+                            reg.name && reg.studentClass && reg.subject && student.name && student.studentClass && student.subject &&
+                            reg.name.trim() === student.name.trim() && 
+                            reg.studentClass.trim() === student.studentClass.trim() && 
+                            reg.subject.trim() === student.subject.trim()
+                        );
                         let registrationInfo = '<p class="text-xs text-red-500 font-semibold mt-1"><i class="fas fa-times-circle mr-1"></i>Chưa đăng ký học bổ sung.</p>';
                         if (registration) { 
                             const thoiGianHocHTML = (registration.thoiGianHoc && Array.isArray(registration.thoiGianHoc)) ? registration.thoiGianHoc.map(t => `<li>Ngày ${new Date(t.ngay).toLocaleDateString('vi-VN')} (${t.buoi})</li>`).join('') : '';
