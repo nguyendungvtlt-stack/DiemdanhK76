@@ -31,10 +31,11 @@
         .form-select, .form-input { border-radius: 0.5rem; border: 1px solid #cbd5e1; padding: 0.6rem 0.8rem; width: 100%; background-color: #f8fafc; transition: all 0.2s ease; }
         .form-input:focus, .form-select:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.4); }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 0.5rem; padding: 0.625rem 1.25rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-primary { background-color: var(--primary-color); color: #fff; }
-        .btn-primary:hover { background-color: var(--primary-dark-color); }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-dark-color); }
         .btn-secondary { background-color: var(--secondary-color); color: #fff; }
-        .btn-secondary:hover { background-color: var(--secondary-dark-color); }
+        .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-dark-color); }
         #loadingOverlay { transition: opacity 0.3s; }
         .clickable-cell { cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
         .clickable-cell:hover { background-color: #f1f5f9; }
@@ -364,14 +365,12 @@
             });
             
             function updateSummaryTable(data, classesWithAbsencesToday) {
-                // 1. Reset all cell counts to 0 and remove styling before recalculating
                 document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => {
                     cell.textContent = '0';
                     cell.classList.remove('clickable-cell');
                     cell.style.color = '#a1a1aa';
                 });
 
-                // 2. Count absences from the data, trimming whitespace to prevent errors
                 const counts = data.reduce((acc, entry) => {
                     if (entry.subject && entry.studentClass) {
                         const subject = entry.subject.trim();
@@ -381,8 +380,7 @@
                     }
                     return acc;
                 }, {});
-
-                // 3. Update the DOM with the new counts and apply styling
+                
                 for (const cellId in counts) {
                     const cell = document.getElementById(cellId);
                     if (cell) {
@@ -452,24 +450,60 @@
                 });
             }
             
-            async function addAbsence(entry) { try { await addDoc(absenceCollection, entry); showNotification('Đã thêm điểm danh thành công!'); } catch (e) { console.error("Error adding absence: ", e); showNotification('Có lỗi xảy ra khi điểm danh.', true); } }
-            absenceForm.addEventListener('submit', function(e) { 
+            absenceForm.addEventListener('submit', async function(e) { 
                 e.preventDefault(); 
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnHTML = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang xử lý...`;
+                
                 const permissionValue = document.getElementById('permission').value;
                 const absenceData = { name: document.getElementById('studentName').value, studentClass: document.getElementById('studentClass').value, subject: document.getElementById('subject').value, date: document.getElementById('absenceDate').value, session: document.getElementById('session').value, permission: permissionValue, timestamp: serverTimestamp() };
                 if (permissionValue === 'Có phép') absenceData.status = 'pending'; else absenceData.status = 'n/a';
-                addAbsence(absenceData);
-                this.reset(); 
-                document.getElementById('absenceDate').valueAsDate = new Date(); 
+                
+                try {
+                    await addDoc(absenceCollection, absenceData);
+                    showNotification('Đã thêm điểm danh thành công!');
+                    this.reset();
+                    document.getElementById('absenceDate').valueAsDate = new Date();
+
+                    submitBtn.innerHTML = `<i class="fas fa-check"></i> Đã thêm!`;
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalBtnHTML;
+                        submitBtn.disabled = false;
+                    }, 2000);
+                } catch (error) {
+                    console.error("Error adding absence: ", error);
+                    showNotification('Có lỗi xảy ra khi điểm danh.', true);
+                    submitBtn.innerHTML = originalBtnHTML;
+                    submitBtn.disabled = false;
+                }
             });
 
             registrationForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnHTML = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang gửi...`;
+
                 const chuyenDeValue = document.getElementById('regChuyenDe').value.trim();
-                if (!chuyenDeValue) { showNotification('Vui lòng nhập tên chuyên đề.', true); return; }
+                if (!chuyenDeValue) { 
+                    showNotification('Vui lòng nhập tên chuyên đề.', true);
+                    submitBtn.innerHTML = originalBtnHTML;
+                    submitBtn.disabled = false;
+                    return;
+                }
                 
                 const thoiGianHoc = Array.from(thoiGianHocContainer.querySelectorAll('.session-entry')).map(entry => ({ ngay: entry.querySelector('.regNgayHoc').value, buoi: entry.querySelector('.regBuoiHoc').value })).filter(t => t.ngay && t.buoi);
-                if (thoiGianHoc.length === 0) { showNotification('Vui lòng chọn ít nhất một buổi học.', true); return; }
+                if (thoiGianHoc.length === 0) { 
+                    showNotification('Vui lòng chọn ít nhất một buổi học.', true);
+                    submitBtn.innerHTML = originalBtnHTML;
+                    submitBtn.disabled = false;
+                    return;
+                }
 
                 const formData = { name: document.getElementById('regStudentName').value, studentClass: document.getElementById('regStudentClass').value, chuNhiem: document.getElementById('regChuNhiem').value, subject: document.getElementById('regSubject').value, chuyenDe: chuyenDeValue, thoiGianHoc, hocCungLop: document.getElementById('regHocCungLop').value, timestamp: serverTimestamp(), status: 'pending' };
                 try { 
@@ -478,9 +512,17 @@
                     this.reset(); 
                     thoiGianHocContainer.innerHTML = '';
                     addSessionInput();
+                    
+                    submitBtn.innerHTML = `<i class="fas fa-check"></i> Đã gửi!`;
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalBtnHTML;
+                        submitBtn.disabled = false;
+                    }, 2000);
                 } catch (err) { 
                     console.error("Error adding registration: ", err); 
                     showNotification('Có lỗi xảy ra, không thể đăng ký.', true); 
+                    submitBtn.innerHTML = originalBtnHTML;
+                    submitBtn.disabled = false;
                 }
             });
 
@@ -523,7 +565,6 @@
             const closeModalUI = (modal) => { modal.children[0].classList.remove('modal-active'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
             function showDetailsModal(subject, studentClass) {
-                 // Guard clause to prevent execution with invalid data
                 if (typeof subject === 'undefined' || typeof studentClass === 'undefined') {
                     console.error("showDetailsModal called with undefined arguments:", subject, studentClass);
                     showNotification("Lỗi: Không thể hiển thị chi tiết.", true);
@@ -532,7 +573,6 @@
 
                 modalTitle.textContent = `Chi tiết vắng môn ${subject} - Lớp ${studentClass}`;
                 
-                // Filter data robustly, checking for existence and trimming whitespace
                 const absentStudents = localAbsenceData.filter(e => 
                     e.subject && e.studentClass && 
                     e.subject.trim() === subject && e.studentClass.trim() === studentClass
@@ -542,7 +582,6 @@
 
                 if (absentStudents.length > 0) {
                     modalBody.innerHTML = '<ul class="space-y-3">' + absentStudents.map(student => {
-                        // Make the registration find more robust against whitespace and missing data
                         const registration = localRegistrationData.find(reg => 
                             reg.name && reg.studentClass && reg.subject && student.name && student.studentClass && student.subject &&
                             reg.name.trim() === student.name.trim() && 
