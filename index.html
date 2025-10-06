@@ -465,10 +465,20 @@
 
             // --- RENDER FUNCTIONS ---
             function updateSummaryTable(data, classesWithAbsencesToday) {
-                const relevantAbsences = data.filter(entry => entry.permission === 'Không phép' || entry.status === 'approved');
-                const counts = relevantAbsences.reduce((acc, entry) => { acc[`cell-${entry.subject}-${entry.studentClass}`] = (acc[`cell-${entry.subject}-${entry.studentClass}`] || 0) + 1; return acc; }, {});
+                const counts = data.reduce((acc, entry) => {
+                    if (entry.subject && entry.studentClass) {
+                        const cellId = `cell-${entry.subject}-${entry.studentClass}`;
+                        acc[cellId] = (acc[cellId] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
                 
-                document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { const count = counts[cell.id] || 0; cell.textContent = count; cell.classList.toggle('clickable-cell', count > 0); cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); });
+                document.querySelectorAll('#summaryTable tbody td[data-subject]').forEach(cell => { 
+                    const count = counts[cell.id] || 0; 
+                    cell.textContent = count; 
+                    cell.classList.toggle('clickable-cell', count > 0); 
+                    cell.style.color = count === 0 ? '#a1a1aa' : (count <= 2 ? '#f59e0b' : '#dc2626'); 
+                });
                 
                 const headerRow = document.getElementById('summaryTable').querySelector('thead tr');
                 headerRow.querySelectorAll('th').forEach((th, index) => {
